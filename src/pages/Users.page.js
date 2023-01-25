@@ -31,7 +31,6 @@ export default function UsersPage() {
   };
 
   const handelEdit = (user) => {
-    user.roles = user.user_roles.map((i) => i.role.id);
     setUser(user);
     setOpen(true);
   };
