@@ -17,6 +17,7 @@ import { useNavigate } from "react-router-dom";
 const pages = [
   { title: "کاربران", link: "/users" },
   { title: "نقش ها", link: "/roles" },
+  { title: "مستندات", link: "/documents" },
 ];
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
