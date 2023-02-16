@@ -1,6 +1,5 @@
 import {
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
@@ -14,18 +13,17 @@ import {
   TextField,
 } from "@mui/material";
 import { api } from "api";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { useEffect } from "react";
+import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const UserForm = ({ show, handleClose, user }) => {
   const queryClient = useQueryClient();
   const { data } = useQuery("roles", api.role.list);
-  const [personName, setPersonName] = useState([]);
   const {
     register,
     handleSubmit,
-    getValues,
+    control,
     formState: { errors },
     reset,
   } = useForm();
@@ -38,14 +36,19 @@ export const UserForm = ({ show, handleClose, user }) => {
     },
   });
 
-  const onSubmit = (data) => mutation.mutate(data);
+  useEffect(() => {
+    if (user) reset(user);
+    else
+      reset({
+        firstname: "",
+        lastname: "",
+        username: "",
+        password: "",
+        roles: [],
+      });
+  }, [user, reset]);
 
-  const handleChange = (event) => {
-    const {
-      target: { value },
-    } = event;
-    setPersonName(typeof value === "string" ? value.split(" | ") : value);
-  };
+  const onSubmit = (data) => mutation.mutate(data);
 
   return (
     <Dialog open={show} onClose={handleClose}>
@@ -92,37 +95,34 @@ export const UserForm = ({ show, handleClose, user }) => {
             error={Boolean(errors.password)}
           />
 
-          <FormControl fullWidth margin="dense">
-            <InputLabel>نقش ها</InputLabel>
-            <Select
-              multiple
-              value={getValues("roles") || user ? user.roles : []}
-              onChange={handleChange}
-              input={<OutlinedInput label="نقش ها" />}
-              inputProps={{ ...register("roles") }}
-              renderValue={(selected) =>
-                data?.data
-                  .filter((i) => selected.includes(i.id))
-                  .map((i) => i.name)
-                  .join(" | ")
-              }
-              MenuProps={{
-                PaperProps: {
-                  style: {
-                    maxHeight: 48 * 4.5 + 8,
-                    width: 250,
-                  },
-                },
-              }}
-            >
-              {data?.data.map((role) => (
-                <MenuItem key={role.id} value={role.id}>
-                  <Checkbox checked={personName.indexOf(role.id) > -1} />
-                  <ListItemText primary={role.name} />
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
+          <Controller
+            control={control}
+            name="roles"
+            render={({ field: { onChange, value } }) => (
+              <FormControl fullWidth margin="dense">
+                <InputLabel>نقش ها</InputLabel>
+                <Select
+                  multiple
+                  options={[{ id: 1, lable: "admin" }]}
+                  value={value ? value : []}
+                  input={<OutlinedInput label="نقش ها" />}
+                  renderValue={(selected) =>
+                    data?.data
+                      .filter((i) => selected.includes(i.id))
+                      .map((i) => i.name)
+                      .join(" | ")
+                  }
+                  onChange={onChange}
+                >
+                  {data?.data.map((role) => (
+                    <MenuItem key={role.id} value={role.id}>
+                      <ListItemText primary={role.name} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          />
         </DialogContent>
         <DialogActions>
           <Button

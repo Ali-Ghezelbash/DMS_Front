@@ -16,8 +16,8 @@ import { UserForm } from "components";
 import React from "react";
 import { useQuery } from "react-query";
 
-export default function UsersPage() {
-  const { data, isLoading } = useQuery("users", api.user.list);
+export default function DocumentsPage() {
+  const { data, isLoading } = useQuery("document", api.document.list);
   const [open, setOpen] = React.useState(false);
   const [user, setUser] = React.useState();
 
@@ -31,7 +31,6 @@ export default function UsersPage() {
   };
 
   const handelEdit = (user) => {
-    user.roles = user.user_roles.map((i) => i.role.id);
     setUser(user);
     setOpen(true);
   };
@@ -46,9 +45,9 @@ export default function UsersPage() {
         alignItems="center"
         sx={{ backgroundColor: "#f5f5f5", p: 2 }}
       >
-        <Typography variant="h5">لیست کاربران</Typography>
+        <Typography variant="h5">لیست مستندات</Typography>
         <Button variant="contained" onClick={handleClickOpen}>
-          ایجاد کاربر
+          ایجاد مستند
         </Button>
       </Stack>
       <Box sx={{ p: 1 }}>
@@ -56,10 +55,12 @@ export default function UsersPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell align="center">نام</TableCell>
-                <TableCell align="center">نام خانوادگی</TableCell>
-                <TableCell align="center">نام کاربری</TableCell>
+                <TableCell align="center">عنوان</TableCell>
+                <TableCell align="center">توضیحات</TableCell>
+                <TableCell align="center">دسته بندی</TableCell>
+                <TableCell align="center">ایجاد کننده</TableCell>
                 <TableCell align="center">تاریخ ایجاد</TableCell>
+                <TableCell align="center">وضعیت</TableCell>
                 <TableCell align="center">عملیات</TableCell>
               </TableRow>
             </TableHead>
@@ -69,12 +70,18 @@ export default function UsersPage() {
                   key={row.id}
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
-                  <TableCell align="center">{row.firstname}</TableCell>
-                  <TableCell align="center">{row.lastname}</TableCell>
-                  <TableCell align="center">{row.username}</TableCell>
+                  <TableCell align="center">{row.title}</TableCell>
+                  <TableCell align="center">{row.description}</TableCell>
+                  <TableCell align="center">{row.category_id}</TableCell>
+                  <TableCell align="center">{row.user_id}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
+                  <TableCell align="center">{row.active}</TableCell>
+                  {/*<TableCell align="center">{row.username}</TableCell>
+                  <TableCell align="center">
+                    {new Date(row.createdAt).toLocaleDateString("fa-IR")}
+                  </TableCell> */}
                   <TableCell align="center">
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
                     <Button color="error">حذف</Button>
