@@ -1,7 +1,7 @@
 import Axios from "axios";
 
 export const request = Axios.create({
-  baseURL: "http://localhost:3001/api/",
+  baseURL: "http://localhost:3000/api/",
   timeout: 1000,
   headers: { "X-Custom-Header": "foobar" },
 });
