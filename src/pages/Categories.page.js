@@ -15,14 +15,14 @@ import {
   Typography,
 } from "@mui/material";
 import { api } from "api";
-import { RoleForm } from "components";
+import { CategoryForm } from "components";
 import React from "react";
 import { useQuery } from "react-query";
 
-export default function RolesPage() {
-  const { data, isLoading } = useQuery("roles", api.role.list);
+export default function CategoriesPage() {
+  const { data, isLoading } = useQuery("categories", api.category.list);
   const [open, setOpen] = React.useState(false);
-  const [selectedRole, setSelectedRole] = React.useState();
+  const [selectedCategory, setSelectedCategory] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
   const handleClick = (event) => {
@@ -42,17 +42,17 @@ export default function RolesPage() {
   };
 
   const handleClose = () => {
-    setSelectedRole(undefined);
+    setSelectedCategory(undefined);
     setOpen(false);
   };
 
-  const handelEdit = (role) => {
-    setSelectedRole(role);
+  const handelEdit = (category) => {
+    setSelectedCategory(category);
     setOpen(true);
   };
 
-  const handelDelete = (e, role) => {
-    setSelectedRole(role);
+  const handelDelete = (e, category) => {
+    setSelectedCategory(category);
     handleClick(e);
   };
 
@@ -68,9 +68,9 @@ export default function RolesPage() {
         alignItems="center"
         sx={{ backgroundColor: "#f5f5f5", p: 2 }}
       >
-        <Typography variant="h5">لیست نقش ها</Typography>
+        <Typography variant="h5">لیست دسته‌بندی ها</Typography>
         <Button variant="contained" onClick={handleClickOpen}>
-          ایجاد نقش
+          ایجاد دسته‌بندی
         </Button>
       </Stack>
       <Box sx={{ p: 1 }}>
@@ -79,8 +79,6 @@ export default function RolesPage() {
             <TableHead>
               <TableRow>
                 <TableCell align="center">نام</TableCell>
-                <TableCell align="center">کد</TableCell>
-                <TableCell align="center">ادمین</TableCell>
                 <TableCell align="center">تاریخ ایجاد</TableCell>
                 <TableCell align="center">عملیات</TableCell>
               </TableRow>
@@ -92,14 +90,6 @@ export default function RolesPage() {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell align="center">{row.name}</TableCell>
-                  <TableCell align="center">{row.key}</TableCell>
-                  <TableCell align="center">
-                    {row.isAdmin ? (
-                      <Chip label="بله" color="success" />
-                    ) : (
-                      <Chip label="خیر" color="error" />
-                    )}
-                  </TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
@@ -115,11 +105,11 @@ export default function RolesPage() {
           </Table>
         </TableContainer>
       </Box>
-      <RoleForm
+      <CategoryForm
         show={open}
         handleClose={handleClose}
         isCreate={true}
-        role={selectedRole}
+        role={selectedCategory}
       />
       <Menu
         anchorEl={anchorEl}
