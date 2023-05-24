@@ -17,17 +17,19 @@ import {
 import { api } from "api";
 import { CategoryForm } from "components";
 import React from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 export default function CategoriesPage() {
-  const { data, isLoading } = useQuery("categories", api.category.list);
+  const { data, isLoading, refetch } = useQuery(
+    "categories",
+    api.category.list
+  );
+
+  const { mutate } = useMutation({ mutationFn: api.category.delete });
+
   const [open, setOpen] = React.useState(false);
   const [selectedCategory, setSelectedCategory] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
-
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
 
   const handleCloseDelete = () => {
     setAnchorEl(null);
@@ -35,6 +37,7 @@ export default function CategoriesPage() {
 
   const handleConfirmDelete = () => {
     setAnchorEl(null);
+    mutate(selectedCategory.id, { onSuccess: refetch });
   };
 
   const handleClickOpen = () => {
@@ -53,10 +56,8 @@ export default function CategoriesPage() {
 
   const handelDelete = (e, category) => {
     setSelectedCategory(category);
-    handleClick(e);
+    setAnchorEl(e.currentTarget);
   };
-
-  console.log(data);
 
   if (isLoading) return <div>loading</div>;
 
@@ -73,12 +74,13 @@ export default function CategoriesPage() {
           ایجاد دسته‌بندی
         </Button>
       </Stack>
-      <Box sx={{ p: 1 }}>
+      <Box sx={{ p: 3 }}>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
                 <TableCell align="center">نام</TableCell>
+                <TableCell align="center">کد</TableCell>
                 <TableCell align="center">تاریخ ایجاد</TableCell>
                 <TableCell align="center">عملیات</TableCell>
               </TableRow>
@@ -90,6 +92,7 @@ export default function CategoriesPage() {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell align="center">{row.name}</TableCell>
+                  <TableCell align="center">{row.value}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
@@ -109,7 +112,7 @@ export default function CategoriesPage() {
         show={open}
         handleClose={handleClose}
         isCreate={true}
-        role={selectedCategory}
+        category={selectedCategory}
       />
       <Menu
         anchorEl={anchorEl}
