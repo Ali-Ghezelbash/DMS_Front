@@ -1,16 +1,14 @@
 import {
   Button,
-  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControlLabel,
   TextField,
 } from "@mui/material";
 import { api } from "api";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useMutation, useQueryClient } from "react-query";
 
 export const CategoryForm = ({ show, handleClose, category }) => {

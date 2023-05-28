@@ -11,13 +11,13 @@ import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
-import AdbIcon from "@mui/icons-material/Adb";
+import PlagiarismIcon from "@mui/icons-material/Plagiarism";
 import { Outlet, useNavigate } from "react-router-dom";
 
 const pages = [
+  { title: "مستندات", link: "/documents" },
   { title: "کاربران", link: "/users" },
   { title: "نقش ها", link: "/roles" },
-  { title: "مستندات", link: "/documents" },
   { title: "دسته‌بندی ها", link: "/categories" },
 ];
 
@@ -53,7 +53,9 @@ export const Layout = () => {
       <AppBar position="static">
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <AdbIcon sx={{ display: { xs: "none", md: "flex" }, mr: 1 }} />
+            <PlagiarismIcon
+              sx={{ display: { xs: "none", md: "flex" }, mr: 1 }}
+            />
             <Typography
               variant="h6"
               noWrap
@@ -62,14 +64,14 @@ export const Layout = () => {
               sx={{
                 mr: 2,
                 display: { xs: "none", md: "flex" },
-                fontFamily: "monospace",
+                //fontFamily: "monospace",
                 fontWeight: 700,
-                letterSpacing: ".3rem",
+                //letterSpacing: ".3rem",
                 color: "inherit",
                 textDecoration: "none",
               }}
             >
-              LOGO
+              سامانه مدیریت اسناد
             </Typography>
 
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
@@ -111,7 +113,9 @@ export const Layout = () => {
                 ))}
               </Menu>
             </Box>
-            <AdbIcon sx={{ display: { xs: "flex", md: "none" }, mr: 1 }} />
+            <PlagiarismIcon
+              sx={{ display: { xs: "flex", md: "none" }, mr: 1 }}
+            />
             <Typography
               variant="h5"
               noWrap
