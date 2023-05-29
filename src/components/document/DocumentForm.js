@@ -19,8 +19,8 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const DocumentForm = ({ show, handleClose, document }) => {
   const queryClient = useQueryClient();
-  const { data } = useQuery("roles", api.role.list);
-  //const { data } = useQuery("categories", api.category.list);
+  const { data: listRoles } = useQuery("roles", api.role.list);
+  const { data: listCategories } = useQuery("categories", api.category.list);
   const {
     register,
     handleSubmit,
@@ -44,7 +44,6 @@ export const DocumentForm = ({ show, handleClose, document }) => {
         title: "",
         description: "",
         roles: "",
-        password: "",
         roles: [],
       });
   }, [document, reset]);
@@ -87,16 +86,45 @@ export const DocumentForm = ({ show, handleClose, document }) => {
                   value={value ? value : []}
                   input={<OutlinedInput label="نقش ها" />}
                   renderValue={(selected) =>
-                    data?.data
+                    listRoles?.data
                       .filter((i) => selected.includes(i.id))
                       .map((i) => i.name)
                       .join(" | ")
                   }
                   onChange={onChange}
                 >
-                  {data?.data.map((role) => (
+                  {listRoles?.data.map((role) => (
                     <MenuItem key={role.id} value={role.id}>
                       <ListItemText primary={role.name} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          />
+          <Controller
+            control={control}
+            name="categories
+            "
+            render={({ field: { onChange, value } }) => (
+              <FormControl fullWidth margin="dense">
+                <InputLabel>دسته‌بندی</InputLabel>
+                <Select
+                  multiple
+                  options={[{ id: 1, lable: "admin" }]}
+                  value={value ? value : []}
+                  input={<OutlinedInput label="دسته‌بندی" />}
+                  renderValue={(selected) =>
+                    listCategories?.data
+                      .filter((i) => selected.includes(i.id))
+                      .map((i) => i.name)
+                      .join(" | ")
+                  }
+                  onChange={onChange}
+                >
+                  {listCategories?.data.map((category) => (
+                    <MenuItem key={category.id} value={category.id}>
+                      <ListItemText primary={category.name} />
                     </MenuItem>
                   ))}
                 </Select>
