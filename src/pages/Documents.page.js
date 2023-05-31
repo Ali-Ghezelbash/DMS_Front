@@ -21,7 +21,7 @@ export default function DocumentsPage() {
   const { data, isLoading, refetch } = useQuery("document", api.document.list);
   const { mutate } = useMutation({ mutationFn: api.document.delete });
   const { data: listCategories } = useQuery("categories", api.category.list);
-  console.log(listCategories);
+  const { data: listUsers} = useQuery("users", api.user.list)
   const [open, setOpen] = React.useState(false);
   const [selectedDocument, setSelectedDocument] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -53,6 +53,16 @@ export default function DocumentsPage() {
     setSelectedDocument(document);
     setAnchorEl(e.currentTarget);
   };
+
+  const categoryName = (id) => {
+    const category = listCategories.data.find(c => c.id === id)
+    return category.name
+  }
+
+  const userName = (id) => {
+    const user = listUsers.data.find(u => u.id === id)
+    return user.username
+  }
 
   if (isLoading) return <div>loading</div>;
 
@@ -92,8 +102,9 @@ export default function DocumentsPage() {
                 >
                   <TableCell align="center">{row.title}</TableCell>
                   <TableCell align="center">{row.description}</TableCell>
-                  <TableCell align="center">{row.category_id}</TableCell>
-                  <TableCell align="center">{row.user_id}</TableCell>
+                  <TableCell align="center">{categoryName(row.category_id)}</TableCell>
+                  
+                  <TableCell align="center">{userName(row.user_id)}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>

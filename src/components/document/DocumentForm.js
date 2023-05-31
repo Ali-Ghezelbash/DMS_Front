@@ -27,13 +27,15 @@ export const DocumentForm = ({ show, handleClose, document }) => {
     control,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm(document);
 
-  const mutation = useMutation(api.document.create, {
-    onSuccess: (res) => {
-      handleClose();
-      queryClient.invalidateQueries("documents");
-      reset();
+  const mutation = useMutation(
+    document ? api.document.update : api.document.create,
+    {
+      onSuccess: () => {
+        handleClose();
+        queryClient.invalidateQueries("documents");
+        reset();
     },
   });
 
@@ -43,12 +45,12 @@ export const DocumentForm = ({ show, handleClose, document }) => {
       reset({
         title: "",
         description: "",
-        roles: "",
         roles: [],
+        categories: [],
       });
   }, [document, reset]);
 
-  const onSubmit = (data) => mutation.mutate(data);
+  const onSubmit = (data) => mutation.mutate(document ? { ...data, id: document.id } : data);
 
   return (
     <Dialog open={show} onClose={handleClose}>
@@ -104,8 +106,7 @@ export const DocumentForm = ({ show, handleClose, document }) => {
           />
           <Controller
             control={control}
-            name="categories
-            "
+            name="categories"
             render={({ field: { onChange, value } }) => (
               <FormControl fullWidth margin="dense">
                 <InputLabel>دسته‌بندی</InputLabel>
