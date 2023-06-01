@@ -55,13 +55,13 @@ export default function DocumentsPage() {
   };
 
   const categoryName = (id) => {
-    const category = listCategories.data.find(c => c.id === id)
-    return category.name
+    //const category = listCategories.data.find(c => c.id === id)
+    return "categoryName" //category.name
   }
 
   const userName = (id) => {
-    const user = listUsers.data.find(u => u.id === id)
-    return user.username
+    //const user = listUsers.data.find(u => u.id === id)
+    return "username" //user.username
   }
 
   if (isLoading) return <div>loading</div>;
@@ -131,7 +131,7 @@ export default function DocumentsPage() {
         show={open}
         handleClose={handleClose}
         isCreate={true}
-        document={document}
+        document={selectedDocument}
       />
       <Menu
         anchorEl={anchorEl}

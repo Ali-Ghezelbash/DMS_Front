@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  Menu,
   Paper,
   Stack,
   Table,
@@ -14,13 +15,25 @@ import {
 import { api } from "api";
 import { UserForm } from "components";
 import React from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 export default function UsersPage() {
-  const { data, isLoading } = useQuery("users", api.user.list);
+  const { data, isLoading, refetch } = useQuery("users", api.user.list);
+  const { mutate } = useMutation({ mutationFn: api.user.delete });
+  
   const [open, setOpen] = React.useState(false);
   const [user, setUser] = React.useState();
+  const [anchorEl, setAnchorEl] = React.useState(null);
 
+    const handleCloseDelete = () => {
+    setAnchorEl(null);
+  };
+
+  const handleConfirmDelete = () => {
+    setAnchorEl(null);
+    mutate(user.id, { onSuccess: refetch });
+  };
+  
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -33,6 +46,11 @@ export default function UsersPage() {
   const handelEdit = (user) => {
     setUser(user);
     setOpen(true);
+  };
+
+  const handelDelete = (e, user) => {
+    setUser(user);
+    setAnchorEl(e.currentTarget);
   };
 
   if (isLoading) return <div>loading</div>;
@@ -76,7 +94,7 @@ export default function UsersPage() {
                   </TableCell>
                   <TableCell align="center">
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
-                    <Button color="error">حذف</Button>
+                    <Button color="error" onClick={(e) => handelDelete(e, row)}>حذف</Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -90,6 +108,25 @@ export default function UsersPage() {
         isCreate={true}
         user={user}
       />
+      <Menu
+      anchorEl={anchorEl}
+      open={Boolean(anchorEl)}
+      onClose={handleCloseDelete}
+      anchorOrigin={{
+        vertical: "bottom",
+        horizontal: "center",
+      }}
+      transformOrigin={{
+        vertical: "top",
+        horizontal: "center",
+      }}
+      PaperProps={{ sx: { paddingInline: 1.5 } }}
+      >
+        <Button variant="contained" color="error" onClick={handleConfirmDelete}>
+          تایید
+        </Button>
+        <Button onClick={handleCloseDelete}>لغو</Button>
+      </Menu>
     </Stack>
   );
 }
