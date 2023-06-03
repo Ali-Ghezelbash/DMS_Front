@@ -11,6 +11,10 @@ import {
   TableHead,
   TableRow,
   Typography,
+  FormControl,
+  Select,
+  InputLabel,
+  MenuItem,
 } from "@mui/material";
 import { api } from "api";
 import { DocumentForm } from "components";
@@ -21,10 +25,14 @@ export default function DocumentsPage() {
   const { data, isLoading, refetch } = useQuery("document", api.document.list);
   const { mutate } = useMutation({ mutationFn: api.document.delete });
   const { data: listCategories } = useQuery("categories", api.category.list);
-  const { data: listUsers} = useQuery("users", api.user.list)
+  console.log("listcategories", listCategories)
+  const { data: listUsers } = useQuery("users", api.user.list)
+  console.log("listUsers", listUsers)
   const [open, setOpen] = React.useState(false);
   const [selectedDocument, setSelectedDocument] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
+  const [filterCategory, setFilterCategory] = React.useState('');
+  const [filterCreator, setFilterCreator] = React.useState('');
 
   const handleCloseDelete = () => {
     setAnchorEl(null);
@@ -60,9 +68,18 @@ export default function DocumentsPage() {
   }
 
   const userName = (id) => {
+    //console.log("listUsers", listUsers)
     //const user = listUsers.data.find(u => u.id === id)
     return "username" //user.username
   }
+
+  const handleChangeCategoty = (event) => {
+    setFilterCategory(event.target.value);
+  };
+
+  const handleChangeCreator = (event) => {
+    setFilterCreator(event.target.value);
+  };
 
   if (isLoading) return <div>loading</div>;
 
@@ -80,6 +97,42 @@ export default function DocumentsPage() {
         </Button>
       </Stack>
       <Box sx={{ p: 3 }}>
+        <div>
+          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+            <InputLabel id="demo-select-small-label">دسته‌بندی</InputLabel>
+            <Select
+              labelId="demo-select-small-label"
+              id="demo-select-small"
+              value={filterCategory}
+              label="category"
+              onChange={handleChangeCategoty}
+            >
+              {/* {listCategories.data.map(c => (
+                <MenuItem value={c.value}>c.name</MenuItem>
+              ))} */}
+              <MenuItem value={10}>Ten</MenuItem>
+              <MenuItem value={20}>Twenty</MenuItem>
+              <MenuItem value={30}>Thirty</MenuItem>
+            </Select>
+          </FormControl>
+          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+            <InputLabel id="demo-select-small-label">ایجاد شده توسط</InputLabel>
+            <Select
+              labelId="demo-select-small-label"
+              id="demo-select-small"
+              value={filterCreator}
+              label="creator"
+              onChange={handleChangeCreator}
+            >
+              {/* {listCategories.data.map(c => (
+                <MenuItem value={c.value}>c.name</MenuItem>
+              ))} */}
+              <MenuItem value={10}>Ten</MenuItem>
+              <MenuItem value={20}>Twenty</MenuItem>
+              <MenuItem value={30}>Thirty</MenuItem>
+            </Select>
+          </FormControl>
+        </div>
         <TableContainer component={Paper}>
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
@@ -103,7 +156,7 @@ export default function DocumentsPage() {
                   <TableCell align="center">{row.title}</TableCell>
                   <TableCell align="center">{row.description}</TableCell>
                   <TableCell align="center">{categoryName(row.category_id)}</TableCell>
-                  
+
                   <TableCell align="center">{userName(row.user_id)}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}

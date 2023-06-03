@@ -36,8 +36,8 @@ export const DocumentForm = ({ show, handleClose, document }) => {
         handleClose();
         queryClient.invalidateQueries("documents");
         reset();
-    },
-  });
+      },
+    });
 
   useEffect(() => {
     if (document) reset(document);
@@ -50,7 +50,8 @@ export const DocumentForm = ({ show, handleClose, document }) => {
       });
   }, [document, reset]);
 
-  const onSubmit = (data) => mutation.mutate(document ? { ...data, id: document.id } : data);
+  const onSubmit = (data) =>
+    mutation.mutate(document ? { ...data, id: document.id } : data);
 
   return (
     <Dialog open={show} onClose={handleClose}>
@@ -112,7 +113,7 @@ export const DocumentForm = ({ show, handleClose, document }) => {
                 <InputLabel>دسته‌بندی</InputLabel>
                 <Select
                   multiple
-                  options={[{ id: 1, lable: "admin" }]}
+                  //options={[{ id: 1, lable: "admin" }]}
                   value={value ? value : []}
                   input={<OutlinedInput label="دسته‌بندی" />}
                   renderValue={(selected) =>
@@ -131,6 +132,14 @@ export const DocumentForm = ({ show, handleClose, document }) => {
                 </Select>
               </FormControl>
             )}
+          />
+          <TextField
+            label="فایل پیوست"
+            name="upload-photo"
+            type="file"
+            margin="dense"
+            fullWidth
+            dir="ltr"
           />
         </DialogContent>
         <DialogActions>
