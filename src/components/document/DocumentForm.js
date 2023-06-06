@@ -29,16 +29,6 @@ export const DocumentForm = ({ show, handleClose, document }) => {
     reset,
   } = useForm(document);
 
-  const mutation = useMutation(
-    document ? api.document.update : api.document.create,
-    {
-      onSuccess: () => {
-        handleClose();
-        queryClient.invalidateQueries("documents");
-        reset();
-      },
-    });
-
   useEffect(() => {
     if (document) reset(document);
     else
@@ -49,6 +39,17 @@ export const DocumentForm = ({ show, handleClose, document }) => {
         categories: [],
       });
   }, [document, reset]);
+
+  const mutation = useMutation(
+    document ? api.document.update : api.document.create,
+    {
+      onSuccess: () => {
+        handleClose();
+        queryClient.invalidateQueries("documents");
+        reset();
+      },
+    }
+  );
 
   const onSubmit = (data) =>
     mutation.mutate(document ? { ...data, id: document.id } : data);
@@ -112,7 +113,7 @@ export const DocumentForm = ({ show, handleClose, document }) => {
               <FormControl fullWidth margin="dense">
                 <InputLabel>دسته‌بندی</InputLabel>
                 <Select
-                  multiple
+                  //multiple
                   //options={[{ id: 1, lable: "admin" }]}
                   value={value ? value : []}
                   input={<OutlinedInput label="دسته‌بندی" />}

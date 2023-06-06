@@ -75,6 +75,7 @@ export default function DocumentsPage() {
 
   const handleChangeCategoty = (event) => {
     setFilterCategory(event.target.value);
+    // const listDocuments = useQuery("document", api.document.list);
   };
 
   const handleChangeCreator = (event) => {
