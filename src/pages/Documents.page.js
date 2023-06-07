@@ -22,12 +22,11 @@ import React from "react";
 import { useMutation, useQuery } from "react-query";
 
 export default function DocumentsPage() {
-  const { data, isLoading, refetch } = useQuery("document", api.document.list);
+  const { data, isLoading, refetch } = useQuery("document", () => api.document.list({categoryId: "all"}));
+  // const { data: filterData, isLoadingFilter, refetchFilter } = useQuery("document", () => api.document.list({categoryId: ""}));
   const { mutate } = useMutation({ mutationFn: api.document.delete });
   const { data: listCategories } = useQuery("categories", api.category.list);
-  console.log("listcategories", listCategories)
   const { data: listUsers } = useQuery("users", api.user.list)
-  console.log("listUsers", listUsers)
   const [open, setOpen] = React.useState(false);
   const [selectedDocument, setSelectedDocument] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -63,14 +62,13 @@ export default function DocumentsPage() {
   };
 
   const categoryName = (id) => {
-    //const category = listCategories.data.find(c => c.id === id)
-    return "categoryName" //category.name
+    const category = listCategories?.data.find(c => c.id === id)
+    return category?.name
   }
 
   const userName = (id) => {
-    //console.log("listUsers", listUsers)
-    //const user = listUsers.data.find(u => u.id === id)
-    return "username" //user.username
+    const user = listUsers?.data.find(u => u.id === id)
+    return user?.username
   }
 
   const handleChangeCategoty = (event) => {
@@ -108,12 +106,9 @@ export default function DocumentsPage() {
               label="category"
               onChange={handleChangeCategoty}
             >
-              {/* {listCategories.data.map(c => (
-                <MenuItem value={c.value}>c.name</MenuItem>
-              ))} */}
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
+              {listCategories?.data.map(c => (
+                <MenuItem key={c.id} value={c.value}>{c.name}</MenuItem>
+              ))}
             </Select>
           </FormControl>
           <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
@@ -125,12 +120,9 @@ export default function DocumentsPage() {
               label="creator"
               onChange={handleChangeCreator}
             >
-              {/* {listCategories.data.map(c => (
-                <MenuItem value={c.value}>c.name</MenuItem>
-              ))} */}
-              <MenuItem value={10}>Ten</MenuItem>
-              <MenuItem value={20}>Twenty</MenuItem>
-              <MenuItem value={30}>Thirty</MenuItem>
+              {listUsers?.data.map(u => (
+                <MenuItem key={u.id} value={u.id}>{u.username}</MenuItem>
+              ))}
             </Select>
           </FormControl>
         </div>
