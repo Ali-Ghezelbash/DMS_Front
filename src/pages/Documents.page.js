@@ -67,6 +67,7 @@ export default function DocumentsPage() {
   }
 
   const userName = (id) => {
+    console.log(listUsers?.data)
     const user = listUsers?.data.find(u => u.id === id)
     return user?.username
   }
