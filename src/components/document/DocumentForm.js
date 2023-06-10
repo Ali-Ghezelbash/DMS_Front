@@ -113,8 +113,8 @@ export const DocumentForm = ({ show, handleClose, document }) => {
               <FormControl fullWidth margin="dense">
                 <InputLabel>دسته‌بندی</InputLabel>
                 <Select
-                  //multiple
-                  //options={[{ id: 1, lable: "admin" }]}
+                  multiple
+                  options={[{ id: 1, lable: "admin" }]}
                   value={value ? value : []}
                   input={<OutlinedInput label="دسته‌بندی" />}
                   renderValue={(selected) =>

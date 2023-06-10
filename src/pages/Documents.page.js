@@ -22,7 +22,7 @@ import React from "react";
 import { useMutation, useQuery } from "react-query";
 
 export default function DocumentsPage() {
-  const { data, isLoading, refetch } = useQuery("document", () => api.document.list({categoryId: "all"}));
+  const { data, isLoading, refetch } = useQuery("document", () => api.document.list({ categoryId: "all" }));
   // const { data: filterData, isLoadingFilter, refetchFilter } = useQuery("document", () => api.document.list({categoryId: ""}));
   const { mutate } = useMutation({ mutationFn: api.document.delete });
   const { data: listCategories } = useQuery("categories", api.category.list);
@@ -67,7 +67,6 @@ export default function DocumentsPage() {
   }
 
   const userName = (id) => {
-    console.log(listUsers?.data)
     const user = listUsers?.data.find(u => u.id === id)
     return user?.username
   }
@@ -136,7 +135,6 @@ export default function DocumentsPage() {
                 <TableCell align="center">دسته بندی</TableCell>
                 <TableCell align="center">ایجاد کننده</TableCell>
                 <TableCell align="center">تاریخ ایجاد</TableCell>
-                {/* <TableCell align="center">وضعیت</TableCell> */}
                 <TableCell align="center">فایل پیوست</TableCell>
                 <TableCell align="center">عملیات</TableCell>
               </TableRow>
@@ -155,12 +153,7 @@ export default function DocumentsPage() {
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
-                  {/* <TableCell align="center">{row.active}</TableCell> */}
                   <TableCell align="center">فایل</TableCell>
-                  {/*<TableCell align="center">{row.username}</TableCell>
-                  <TableCell align="center">
-                    {new Date(row.createdAt).toLocaleDateString("fa-IR")}
-                  </TableCell> */}
                   <TableCell align="center">
                     <Button>مشاهده</Button>
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
