@@ -18,7 +18,7 @@ import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const UserForm = ({ show, handleClose, user }) => {
-  console.log("user", user)
+  console.log("user", user);
   const queryClient = useQueryClient();
   const { data } = useQuery("roles", api.role.list);
   const {
@@ -29,7 +29,7 @@ export const UserForm = ({ show, handleClose, user }) => {
     reset,
   } = useForm();
 
-  const mutation = useMutation(api.user.create, {
+  const mutation = useMutation(user ? api.user.update : api.user.create, {
     onSuccess: (res) => {
       handleClose();
       queryClient.invalidateQueries("users");
@@ -104,20 +104,18 @@ export const UserForm = ({ show, handleClose, user }) => {
                 <InputLabel>نقش ها</InputLabel>
                 <Select
                   multiple
-                  options={[{ id: 1, lable: "admin" }]}
-                  selected={["admin"]}
                   value={value ? value : []}
                   input={<OutlinedInput label="نقش ها" />}
                   renderValue={(selected) =>
                     data?.data
-                      .filter((i) => selected.includes(i.id))
+                      .filter((i) => selected.includes(i.key))
                       .map((i) => i.name)
                       .join(" | ")
                   }
                   onChange={onChange}
                 >
                   {data?.data.map((role) => (
-                    <MenuItem key={role.id} value={role.id}>
+                    <MenuItem key={role.key} value={role.key}>
                       <ListItemText primary={role.name} />
                     </MenuItem>
                   ))}

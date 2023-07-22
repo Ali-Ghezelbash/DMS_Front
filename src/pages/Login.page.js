@@ -10,11 +10,12 @@ import { api } from "api";
 import { useMutation } from "react-query";
 
 import login from "assets/images/login.png";
+import { tokenManager } from "utils";
 
 export default function LoginPage() {
   const mutation = useMutation(api.auth.login, {
     onSuccess: (res) => {
-      localStorage.setItem("token", res.data.token);
+      tokenManager.setToken(res.data.token);
       window.location.href = "/";
     },
   });

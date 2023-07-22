@@ -20,12 +20,12 @@ import { useMutation, useQuery } from "react-query";
 export default function UsersPage() {
   const { data, isLoading, refetch } = useQuery("users", api.user.list);
   const { mutate } = useMutation({ mutationFn: api.user.delete });
-  
+
   const [open, setOpen] = React.useState(false);
   const [user, setUser] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
-    const handleCloseDelete = () => {
+  const handleCloseDelete = () => {
     setAnchorEl(null);
   };
 
@@ -33,7 +33,7 @@ export default function UsersPage() {
     setAnchorEl(null);
     mutate(user.id, { onSuccess: refetch });
   };
-  
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -94,7 +94,9 @@ export default function UsersPage() {
                   </TableCell>
                   <TableCell align="center">
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
-                    <Button color="error" onClick={(e) => handelDelete(e, row)}>حذف</Button>
+                    <Button color="error" onClick={(e) => handelDelete(e, row)}>
+                      حذف
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -109,18 +111,18 @@ export default function UsersPage() {
         user={user}
       />
       <Menu
-      anchorEl={anchorEl}
-      open={Boolean(anchorEl)}
-      onClose={handleCloseDelete}
-      anchorOrigin={{
-        vertical: "bottom",
-        horizontal: "center",
-      }}
-      transformOrigin={{
-        vertical: "top",
-        horizontal: "center",
-      }}
-      PaperProps={{ sx: { paddingInline: 1.5 } }}
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleCloseDelete}
+        anchorOrigin={{
+          vertical: "bottom",
+          horizontal: "center",
+        }}
+        transformOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+        PaperProps={{ sx: { paddingInline: 1.5 } }}
       >
         <Button variant="contained" color="error" onClick={handleConfirmDelete}>
           تایید

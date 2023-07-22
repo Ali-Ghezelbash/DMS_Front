@@ -17,7 +17,7 @@ import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-export const DocumentForm = ({ show, handleClose, document }) => {
+export const DocumentForm = ({ show, handleClose, document, refetch }) => {
   const queryClient = useQueryClient();
   const { data: listRoles } = useQuery("roles", api.role.list);
   const { data: listCategories } = useQuery("categories", api.category.list);
@@ -47,12 +47,17 @@ export const DocumentForm = ({ show, handleClose, document }) => {
         handleClose();
         queryClient.invalidateQueries("documents");
         reset();
+        refetch();
       },
     }
   );
 
   const onSubmit = (data) =>
-    mutation.mutate(document ? { ...data, id: document.id } : data);
+    mutation.mutate(
+      document
+        ? { ...data, id: document.id }
+        : { ...data, version: 1, active: 1 }
+    );
 
   return (
     <Dialog open={show} onClose={handleClose}>
@@ -108,21 +113,20 @@ export const DocumentForm = ({ show, handleClose, document }) => {
           />
           <Controller
             control={control}
-            name="categories"
+            name="category_id"
             render={({ field: { onChange, value } }) => (
               <FormControl fullWidth margin="dense">
                 <InputLabel>دسته‌بندی</InputLabel>
                 <Select
-                  multiple
                   options={[{ id: 1, lable: "admin" }]}
-                  value={value ? value : []}
+                  value={value}
                   input={<OutlinedInput label="دسته‌بندی" />}
-                  renderValue={(selected) =>
-                    listCategories?.data
-                      .filter((i) => selected.includes(i.id))
-                      .map((i) => i.name)
-                      .join(" | ")
-                  }
+                  // renderValue={(selected) =>
+                  //   listCategories?.data
+                  //     .filter((i) => selected.includes(i.id))
+                  //     .map((i) => i.name)
+                  //     .join(" | ")
+                  // }
                   onChange={onChange}
                 >
                   {listCategories?.data.map((category) => (
