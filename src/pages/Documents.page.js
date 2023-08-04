@@ -15,11 +15,13 @@ import {
   Select,
   InputLabel,
   MenuItem,
+  IconButton,
 } from "@mui/material";
 import { api } from "api";
 import { DocumentForm } from "components";
 import React from "react";
 import { useMutation, useQuery } from "react-query";
+import CloseIcon from "@mui/icons-material/Close";
 
 export default function DocumentsPage() {
   // const { data: filterData, isLoadingFilter, refetchFilter } = useQuery("document", () => api.document.list({categoryId: ""}));
@@ -109,6 +111,15 @@ export default function DocumentsPage() {
               value={category_id}
               label="دسته‌بندی"
               onChange={handleChangeCategoty}
+              startAdornment={
+                <IconButton
+                  size="small"
+                  sx={{ display: category_id ? "" : "none" }}
+                  onClick={() => setCategory_id(undefined)}
+                >
+                  <CloseIcon fontSize="16px" />
+                </IconButton>
+              }
             >
               {listCategories?.data.map((c) => (
                 <MenuItem key={c.id} value={c.id}>
@@ -163,7 +174,14 @@ export default function DocumentsPage() {
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
-                  <TableCell align="center">فایل</TableCell>
+                  <TableCell align="center">
+                    <a
+                      href={"http://localhost:3000/uploads/" + row.file}
+                      target="_blank"
+                    >
+                      فایل
+                    </a>
+                  </TableCell>
                   <TableCell align="center">
                     <Button>مشاهده</Button>
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>

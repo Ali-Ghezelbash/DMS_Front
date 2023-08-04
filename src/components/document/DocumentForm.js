@@ -13,7 +13,7 @@ import {
   TextField,
 } from "@mui/material";
 import { api } from "api";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
@@ -21,6 +21,16 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
   const queryClient = useQueryClient();
   const { data: listRoles } = useQuery("roles", api.role.list);
   const { data: listCategories } = useQuery("categories", api.category.list);
+  const [file, setFile] = useState();
+  const [emptyFile, setEmptyFile] = useState(false);
+
+  const handleFileChange = (e) => {
+    if (e.target.files) {
+      setFile(e.target.files[0]);
+      setEmptyFile(false);
+    }
+  };
+
   const {
     register,
     handleSubmit,
@@ -52,12 +62,25 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
     }
   );
 
-  const onSubmit = (data) =>
+  const onSubmit = (data) => {
+    if (!file) return setEmptyFile(true);
+
+    const formData = new FormData();
+    formData.append("title", data.title);
+    formData.append("description", data.description);
+    formData.append("version", "1");
+    formData.append("active", "1");
+    formData.append("category_id", data.category_id);
+    formData.append("roles", JSON.stringify(data.roles));
+    formData.append("file", file);
+
     mutation.mutate(
-      document
-        ? { ...data, id: document.id }
-        : { ...data, version: 1, active: 1 }
+      formData
+      // document
+      //   ? { ...data, id: document.id, file }
+      //   : { ...data, version: 1, active: 1, file }
     );
+  };
 
   return (
     <Dialog open={show} onClose={handleClose}>
@@ -118,15 +141,8 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
               <FormControl fullWidth margin="dense">
                 <InputLabel>دسته‌بندی</InputLabel>
                 <Select
-                  options={[{ id: 1, lable: "admin" }]}
                   value={value}
                   input={<OutlinedInput label="دسته‌بندی" />}
-                  // renderValue={(selected) =>
-                  //   listCategories?.data
-                  //     .filter((i) => selected.includes(i.id))
-                  //     .map((i) => i.name)
-                  //     .join(" | ")
-                  // }
                   onChange={onChange}
                 >
                   {listCategories?.data.map((category) => (
@@ -144,6 +160,8 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
             type="file"
             margin="dense"
             fullWidth
+            onChange={handleFileChange}
+            error={emptyFile}
             dir="ltr"
           />
         </DialogContent>

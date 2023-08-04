@@ -3,6 +3,7 @@ import { user } from "./user";
 import { role } from "./role";
 import { document } from "./document";
 import { category } from "./category";
+import { file } from "./file";
 
 export const api = {
   auth,
@@ -10,4 +11,5 @@ export const api = {
   role,
   document,
   category,
+  file,
 };
