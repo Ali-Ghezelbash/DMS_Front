@@ -18,7 +18,6 @@ import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const UserForm = ({ show, handleClose, user }) => {
-  console.log("user", user);
   const queryClient = useQueryClient();
   const { data } = useQuery("roles", api.role.list);
   const {

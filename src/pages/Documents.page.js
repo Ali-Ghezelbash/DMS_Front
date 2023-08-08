@@ -79,7 +79,6 @@ export default function DocumentsPage() {
 
   const handleChangeCategoty = (event) => {
     setCategory_id(event.target.value);
-    // const listDocuments = useQuery("document", api.document.list);
   };
 
   const handleChangeCreator = (event) => {
@@ -103,7 +102,7 @@ export default function DocumentsPage() {
       </Stack>
       <Box sx={{ p: 3 }}>
         <div>
-          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+          <FormControl sx={{ m: 1, minWidth: 160 }} size="small">
             <InputLabel id="demo-select-small-label">دسته‌بندی</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -128,7 +127,7 @@ export default function DocumentsPage() {
               ))}
             </Select>
           </FormControl>
-          <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+          <FormControl sx={{ m: 1, minWidth: 160 }} size="small">
             <InputLabel id="demo-select-small-label">ایجاد شده توسط</InputLabel>
             <Select
               labelId="demo-select-small-label"
@@ -136,6 +135,15 @@ export default function DocumentsPage() {
               value={user_id}
               label="ایجاد شده توسط"
               onChange={handleChangeCreator}
+              startAdornment={
+                <IconButton
+                  size="small"
+                  sx={{ display: user_id ? "" : "none" }}
+                  onClick={() => setUser_id(undefined)}
+                >
+                  <CloseIcon fontSize="16px" />
+                </IconButton>
+              }
             >
               {listUsers?.data.map((u) => (
                 <MenuItem key={u.id} value={u.id}>
@@ -176,6 +184,7 @@ export default function DocumentsPage() {
                   </TableCell>
                   <TableCell align="center">
                     <a
+                      rel="noreferrer"
                       href={"http://localhost:3000/uploads/" + row.file}
                       target="_blank"
                     >

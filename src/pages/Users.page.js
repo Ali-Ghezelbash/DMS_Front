@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { api } from "api";
-import { UserForm } from "components";
+import { UserForm, UserFormChangePassword } from "components";
 import React from "react";
 import { useMutation, useQuery } from "react-query";
 
@@ -22,6 +22,7 @@ export default function UsersPage() {
   const { mutate } = useMutation({ mutationFn: api.user.delete });
 
   const [open, setOpen] = React.useState(false);
+  const [openPassword, setOpenPassword] = React.useState(false);
   const [user, setUser] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
 
@@ -43,9 +44,19 @@ export default function UsersPage() {
     setOpen(false);
   };
 
+  const handleClosePassword = () => {
+    setUser(undefined);
+    setOpenPassword(false);
+  };
+
   const handelEdit = (user) => {
     setUser(user);
     setOpen(true);
+  };
+
+  const handelEditPassword = (user) => {
+    setUser(user);
+    setOpenPassword(true);
   };
 
   const handelDelete = (e, user) => {
@@ -94,6 +105,7 @@ export default function UsersPage() {
                   </TableCell>
                   <TableCell align="center">
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
+                    <Button onClick={() => handelEditPassword(row)}>تغییر رمزعبور</Button>
                     <Button color="error" onClick={(e) => handelDelete(e, row)}>
                       حذف
                     </Button>
@@ -109,6 +121,11 @@ export default function UsersPage() {
         handleClose={handleClose}
         isCreate={true}
         user={user}
+      />
+      <UserFormChangePassword
+        show={openPassword}
+        user={user}
+        handleClose={handleClosePassword}
       />
       <Menu
         anchorEl={anchorEl}

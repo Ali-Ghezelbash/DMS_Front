@@ -31,7 +31,8 @@ export const Routes = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            <Route path="/" element={<div>Home Page</div>} />
+            {/* <Route path="/" element={<div>Home Page</div>} /> */}
+            <Route path="/" element={<DocumentsPage />} />
             <Route path="/users" element={<UsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/documents" element={<DocumentsPage />} />

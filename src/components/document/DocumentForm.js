@@ -114,9 +114,8 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
                 <InputLabel>دسترسی به نقش های</InputLabel>
                 <Select
                   multiple
-                  options={[{ id: 1, lable: "admin" }]}
                   value={value ? value : []}
-                  input={<OutlinedInput label="نقش ها" />}
+                  input={<OutlinedInput label="دسترسی به نقش های" />}
                   renderValue={(selected) =>
                     listRoles?.data
                       .filter((i) => selected.includes(i.id))
