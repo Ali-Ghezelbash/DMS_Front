@@ -162,6 +162,8 @@ export default function DocumentsPage() {
                 <TableCell align="center">دسته بندی</TableCell>
                 <TableCell align="center">ایجاد کننده</TableCell>
                 <TableCell align="center">تاریخ ایجاد</TableCell>
+                <TableCell align="center">نسخه</TableCell>
+                <TableCell align="center">نظرات</TableCell>
                 <TableCell align="center">فایل پیوست</TableCell>
                 <TableCell align="center">عملیات</TableCell>
               </TableRow>
@@ -177,11 +179,27 @@ export default function DocumentsPage() {
                   <TableCell align="center">
                     {categoryName(row.category_id)}
                   </TableCell>
-
                   <TableCell align="center">{userName(row.user_id)}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
+                  <TableCell align="center">
+                    {(row.version === 1) ? row.version :
+                      <FormControl sx={{ m: 1, minWidth: 40 }} size="small">
+                        <Select
+                          labelId="demo-select-small-label"
+                          id="demo-select-small"
+                          value={1}
+                          onChange={console.log}
+                        >
+                          <MenuItem value={1}>1</MenuItem>
+                          <MenuItem value={2}>2</MenuItem>
+                          <MenuItem value={3}>3</MenuItem>
+                        </Select>
+                      </FormControl>
+                    }
+                  </TableCell>
+                  <TableCell align="center">مشاهده</TableCell>
                   <TableCell align="center">
                     <a
                       rel="noreferrer"
@@ -192,7 +210,7 @@ export default function DocumentsPage() {
                     </a>
                   </TableCell>
                   <TableCell align="center">
-                    <Button>مشاهده</Button>
+                    <Button>اشتراک گذاری</Button>
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
                     <Button color="error" onClick={(e) => handelDelete(e, row)}>
                       حذف
