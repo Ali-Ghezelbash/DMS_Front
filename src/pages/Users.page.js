@@ -105,7 +105,9 @@ export default function UsersPage() {
                   </TableCell>
                   <TableCell align="center">
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
-                    <Button onClick={() => handelEditPassword(row)}>تغییر رمزعبور</Button>
+                    <Button onClick={() => handelEditPassword(row)}>
+                      تغییر رمزعبور
+                    </Button>
                     <Button color="error" onClick={(e) => handelDelete(e, row)}>
                       حذف
                     </Button>

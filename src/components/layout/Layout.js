@@ -13,13 +13,16 @@ import Tooltip from "@mui/material/Tooltip";
 import MenuItem from "@mui/material/MenuItem";
 import PlagiarismIcon from "@mui/icons-material/Plagiarism";
 import { Outlet, useNavigate } from "react-router-dom";
+import { tokenManager } from "utils";
 
-const pages = [
-  { title: "مستندات", link: "/documents" },
-  { title: "کاربران", link: "/users" },
-  { title: "نقش ها", link: "/roles" },
-  { title: "دسته‌بندی ها", link: "/categories" },
-];
+const pages = tokenManager.isAdmin()
+  ? [
+      { title: "مستندات", link: "/documents" },
+      { title: "کاربران", link: "/users" },
+      { title: "نقش ها", link: "/roles" },
+      { title: "دسته‌بندی ها", link: "/categories" },
+    ]
+  : [{ title: "مستندات", link: "/documents" }];
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 

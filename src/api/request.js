@@ -12,4 +12,17 @@ if (token) {
   request.defaults.headers.common["x-access-token"] = token;
 }
 
+request.interceptors.response.use(
+  function (response) {
+    return response;
+  },
+  function (error) {
+    if (error.response.status === 401) {
+      tokenManager.deleteToken();
+      window.location.pathname = "login";
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default request;

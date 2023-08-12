@@ -184,7 +184,9 @@ export default function DocumentsPage() {
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
                   <TableCell align="center">
-                    {(row.version === 1) ? row.version :
+                    {row.version === 1 ? (
+                      row.version
+                    ) : (
                       <FormControl sx={{ m: 1, minWidth: 40 }} size="small">
                         <Select
                           labelId="demo-select-small-label"
@@ -197,7 +199,7 @@ export default function DocumentsPage() {
                           <MenuItem value={3}>3</MenuItem>
                         </Select>
                       </FormControl>
-                    }
+                    )}
                   </TableCell>
                   <TableCell align="center">مشاهده</TableCell>
                   <TableCell align="center">

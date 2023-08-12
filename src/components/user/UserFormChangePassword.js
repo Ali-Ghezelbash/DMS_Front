@@ -21,7 +21,7 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
     reset,
   } = useForm();
 
-  const mutation = useMutation(/*api.user.update*/ console.log("lk"), {
+  const mutation = useMutation(() => {}, {
     onSuccess: (res) => {
       handleClose();
       queryClient.invalidateQueries("users");
@@ -30,10 +30,10 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
   });
 
   useEffect(() => {
-      reset({
-        password: "",
-        confirmPassword:"",
-      });
+    reset({
+      password: "",
+      confirmPassword: "",
+    });
   }, [user, reset]);
 
   const onSubmit = (data) => mutation.mutate(data);
@@ -58,7 +58,9 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
             label="تایید رمز عبور"
             fullWidth
             inputProps={{ ...register("confirmPassword", { required: true }) }}
-            helperText={errors.confirmPassword ? "این فیلد الزامی است" : undefined}
+            helperText={
+              errors.confirmPassword ? "این فیلد الزامی است" : undefined
+            }
             error={Boolean(errors.confirmPassword)}
           />
         </DialogContent>

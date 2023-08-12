@@ -11,6 +11,7 @@ import {
   OutlinedInput,
   Select,
   TextField,
+  Typography,
 } from "@mui/material";
 import { api } from "api";
 import { useEffect, useState } from "react";
@@ -23,6 +24,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
   const { data: listCategories } = useQuery("categories", api.category.list);
   const [file, setFile] = useState();
   const [emptyFile, setEmptyFile] = useState(false);
+  const [oldFile, setOldFile] = useState(document?.file);
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -63,7 +65,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
   );
 
   const onSubmit = (data) => {
-    if (!file) return setEmptyFile(true);
+    if (!file && !oldFile) return setEmptyFile(true);
 
     const formData = new FormData();
     formData.append("title", data.title);
@@ -72,7 +74,10 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
     formData.append("active", "1");
     formData.append("category_id", data.category_id);
     formData.append("roles", JSON.stringify(data.roles));
-    formData.append("file", file);
+
+    if (file) {
+      formData.append("file", file);
+    } else if (oldFile) formData.append("fileName", oldFile);
 
     mutation.mutate(
       formData
@@ -153,6 +158,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
               </FormControl>
             )}
           />
+          <Typography>فایل </Typography>
           <TextField
             label="فایل پیوست"
             name="upload-photo"
