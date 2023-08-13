@@ -14,14 +14,14 @@ import {
   Typography,
   Link,
   IconButton,
-  Checkbox
+  Checkbox,
 } from "@mui/material";
 import { api } from "api";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 import CloseIcon from "@mui/icons-material/Close";
-import FormControlLabel from "@mui/material/FormControlLabel"
+import FormControlLabel from "@mui/material/FormControlLabel";
 
 export const DocumentForm = ({ show, handleClose, document, refetch }) => {
   const queryClient = useQueryClient();
@@ -30,8 +30,8 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
   const [file, setFile] = useState();
   const [emptyFile, setEmptyFile] = useState(false);
   const [oldFile, setOldFile] = useState(document?.file);
-  const [newVersion, setNewVersion] = useState(false)
-  console.log(typeof(document?.version))
+  const [newVersion, setNewVersion] = useState(false);
+
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
@@ -39,11 +39,10 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
     }
   };
 
-
   const handleDeleteOldFile = () => {
     setEmptyFile(false);
-    setOldFile(null)
-  }
+    setOldFile(null);
+  };
 
   const handleChangeNewVersion = (event) => {
     setNewVersion(event.target.checked);
@@ -68,9 +67,17 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
       });
   }, [document, reset]);
 
+  useEffect(() => {
+    setOldFile(document?.file);
+  }, [document]);
+
   const mutation = useMutation(
     //document ? api.document.update : api.document.create,
-    (document) ? (oldFile ? api.document.update : api.document.create) : api.document.create,
+    document
+      ? oldFile
+        ? api.document.update
+        : api.document.create
+      : api.document.create,
     {
       onSuccess: () => {
         handleClose();
@@ -92,12 +99,11 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
     if (!file && !oldFile) return setEmptyFile(true);
 
     if (file) {
-      console.log(" --- file --- ")
+      console.log(" --- file --- ");
       formData.append("file", file);
       formData.append("version", "1");
-
     } else if (oldFile) {
-      console.log(" --- oldFile --- ")
+      console.log(" --- oldFile --- ");
       formData.append("fileName", oldFile);
       formData.append("version", "1");
     }
@@ -190,23 +196,28 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
             error={emptyFile}
             dir="ltr"
           />
-          {(document?.file) ?
-            <div >
-              <Link href="#" onClick={handleDeleteOldFile}>فایل پیوست</Link>
-              <IconButton
-                size="small"
-                onClick={() => { }}
-              >
+          {oldFile ? (
+            <div>
+              <Link href="#" onClick={handleDeleteOldFile}>
+                فایل پیوست
+              </Link>
+              <IconButton size="small" onClick={() => {}}>
                 <CloseIcon fontSize="16px" />
               </IconButton>
             </div>
-            :
-            null
-          }
-          {(document) ?
-            <FormControlLabel control={<Checkbox size="small" checked={newVersion} onChange={handleChangeNewVersion}/>} label="نسخه جدید" />
-            : null
-          }
+          ) : null}
+          {oldFile ? (
+            <FormControlLabel
+              control={
+                <Checkbox
+                  size="small"
+                  checked={newVersion}
+                  onChange={handleChangeNewVersion}
+                />
+              }
+              label="نسخه جدید"
+            />
+          ) : null}
         </DialogContent>
         <DialogActions>
           <Button

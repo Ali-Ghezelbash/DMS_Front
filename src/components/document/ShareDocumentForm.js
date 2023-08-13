@@ -28,14 +28,8 @@ export const ShareDocumentForm = () => {
     reset,
   } = useForm(document);
 
-
-  const onSubmit = () => {
-    mutation.mutate(
-    );
-  };
-
   return (
-    <Dialog open={show} onClose={handleClose}>
+    <Dialog open={() => {}} onClose={() => {}}>
       <form>
         <DialogTitle>اشتراک گذاری</DialogTitle>
         <DialogContent>
@@ -51,13 +45,12 @@ export const ShareDocumentForm = () => {
         <DialogActions>
           <Button
             onClick={() => {
-              handleClose();
               reset();
             }}
           >
             لغو
           </Button>
-          <Button onClick={handleSubmit(onSubmit)}>ثبت</Button>
+          <Button onClick={() => {}}>ثبت</Button>
         </DialogActions>
       </form>
     </Dialog>
