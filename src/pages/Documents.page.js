@@ -72,11 +72,6 @@ export default function DocumentsPage() {
     return category?.name;
   };
 
-  const userName = (id) => {
-    const user = listUsers?.data.find((u) => u.id === id);
-    return user?.username;
-  };
-
   const handleChangeCategoty = (event) => {
     setCategory_id(event.target.value);
   };
@@ -179,7 +174,7 @@ export default function DocumentsPage() {
                   <TableCell align="center">
                     {categoryName(row.category_id)}
                   </TableCell>
-                  <TableCell align="center">{userName(row.user_id)}</TableCell>
+                  <TableCell align="center">{row.user.username}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>

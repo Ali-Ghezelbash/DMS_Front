@@ -19,7 +19,6 @@ import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const ShareDocumentForm = () => {
   const queryClient = useQueryClient();
-  const [file, setFile] = useState();
 
   const {
     register,
@@ -30,30 +29,15 @@ export const ShareDocumentForm = () => {
   } = useForm(document);
 
 
-  const onSubmit = (data) => {
-    if (!file) return setEmptyFile(true);
-
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("version", "1");
-    formData.append("active", "1");
-    formData.append("category_id", data.category_id);
-    formData.append("roles", JSON.stringify(data.roles));
-    formData.append("file", file);
-
+  const onSubmit = () => {
     mutation.mutate(
-      formData
-      // document
-      //   ? { ...data, id: document.id, file }
-      //   : { ...data, version: 1, active: 1, file }
     );
   };
 
   return (
     <Dialog open={show} onClose={handleClose}>
       <form>
-        <DialogTitle>اشتراک گ</DialogTitle>
+        <DialogTitle>اشتراک گذاری</DialogTitle>
         <DialogContent>
           <TextField
             margin="dense"
