@@ -143,8 +143,9 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
           <Controller
             control={control}
             name="roles"
-            render={({ field: { onChange, value } }) => (
-              <FormControl fullWidth margin="dense">
+            rules={{ required: true }}
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <FormControl fullWidth margin="dense" error={error}>
                 <InputLabel>دسترسی به نقش های</InputLabel>
                 <Select
                   multiple
@@ -168,6 +169,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
               </FormControl>
             )}
           />
+
           <Controller
             control={control}
             name="category_id"
@@ -200,7 +202,10 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
           />
           {oldFile ? (
             <div>
-              <Link href={"http://localhost:3000/uploads/" + oldFile} target="_blank">
+              <Link
+                href={"http://localhost:3000/uploads/" + oldFile}
+                target="_blank"
+              >
                 فایل پیوست
               </Link>
               <IconButton size="small" onClick={handleDeleteOldFile}>
