@@ -17,12 +17,14 @@ import { tokenManager } from "utils";
 
 const pages = tokenManager.isAdmin()
   ? [
-      { title: "مستندات", link: "/documents" },
-      { title: "کاربران", link: "/users" },
-      { title: "نقش ها", link: "/roles" },
-      { title: "دسته‌بندی ها", link: "/categories" },
-    ]
-  : [{ title: "مستندات", link: "/documents" }];
+    { title: "مستندات", link: "/documents" },
+    { title: "کاربران", link: "/users" },
+    { title: "نقش ها", link: "/roles" },
+    { title: "دسته‌بندی ها", link: "/categories" },
+    { title: "خروج", link: "/login" }
+  ]
+  : [{ title: "مستندات", link: "/documents" },
+  { title: "خروج", link: "/login" }];
 
 const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
@@ -109,7 +111,10 @@ export const Layout = () => {
                 {pages.map((page) => (
                   <MenuItem
                     key={page.title}
-                    onClick={() => handleNavMenuClick(page.link)}
+                    onClick={() => {
+                      if (page.title === "خروج") {tokenManager.deleteToken()}
+                      handleNavMenuClick(page.link);
+                    }}
                   >
                     <Typography textAlign="center">{page.title}</Typography>
                   </MenuItem>

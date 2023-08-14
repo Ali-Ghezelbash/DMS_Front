@@ -8,7 +8,7 @@ import {
 } from "@mui/material";
 import { api } from "api";
 import { useEffect } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
 export const UserFormChangePassword = ({ show, handleClose, user }) => {
@@ -21,7 +21,7 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
     reset,
   } = useForm();
 
-  const mutation = useMutation(() => {}, {
+  const mutation = useMutation(api.user.update, {
     onSuccess: (res) => {
       handleClose();
       queryClient.invalidateQueries("users");

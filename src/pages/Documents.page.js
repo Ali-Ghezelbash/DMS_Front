@@ -22,6 +22,7 @@ import { DocumentForm } from "components";
 import React from "react";
 import { useMutation, useQuery } from "react-query";
 import CloseIcon from "@mui/icons-material/Close";
+import { useNavigate } from "react-router-dom";
 
 export default function DocumentsPage() {
   // const { data: filterData, isLoadingFilter, refetchFilter } = useQuery("document", () => api.document.list({categoryId: ""}));
@@ -38,6 +39,7 @@ export default function DocumentsPage() {
     ["document", category_id, user_id],
     () => api.document.list({ category_id, user_id })
   );
+  const navigate = useNavigate();
 
   const handleCloseDelete = () => {
     setAnchorEl(null);
@@ -174,7 +176,7 @@ export default function DocumentsPage() {
                   <TableCell align="center">
                     {categoryName(row.category_id)}
                   </TableCell>
-                  <TableCell align="center">{row.user.username}</TableCell>
+                  <TableCell align="center">{row.user?.username}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
@@ -207,6 +209,7 @@ export default function DocumentsPage() {
                     </a>
                   </TableCell>
                   <TableCell align="center">
+                    <Button onClick={() => {navigate("/document");}}>مشاهده</Button>
                     <Button>اشتراک گذاری</Button>
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
                     <Button color="error" onClick={(e) => handelDelete(e, row)}>

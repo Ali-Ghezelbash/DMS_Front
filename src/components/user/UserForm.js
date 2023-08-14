@@ -43,7 +43,7 @@ export const UserForm = ({ show, handleClose, user }) => {
         firstname: "",
         lastname: "",
         username: "",
-        password: "",
+        // password: "",
         roles: [],
       });
   }, [user, reset]);
@@ -84,7 +84,7 @@ export const UserForm = ({ show, handleClose, user }) => {
             helperText={errors.username ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.username)}
           />
-          <TextField
+          {/* <TextField
             margin="dense"
             label="کلمه عبور"
             type="password"
@@ -93,7 +93,7 @@ export const UserForm = ({ show, handleClose, user }) => {
             inputProps={{ ...register("password", { required: true }) }}
             helperText={errors.password ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.password)}
-          />
+          /> */}
 
           <Controller
             control={control}

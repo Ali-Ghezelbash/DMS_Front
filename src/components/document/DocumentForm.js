@@ -103,6 +103,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
       formData.append("file", file);
       formData.append("version", "1");
     } else if (oldFile) {
+      formData.append("id", data.id);
       console.log(" --- oldFile --- ");
       formData.append("fileName", oldFile);
       formData.append("version", "1");
@@ -147,6 +148,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
                 <InputLabel>دسترسی به نقش های</InputLabel>
                 <Select
                   multiple
+                  required
                   value={value ? value : []}
                   input={<OutlinedInput label="دسترسی به نقش های" />}
                   renderValue={(selected) =>
@@ -198,15 +200,15 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
           />
           {oldFile ? (
             <div>
-              <Link href="#" onClick={handleDeleteOldFile}>
+              <Link href={"http://localhost:3000/uploads/" + oldFile} target="_blank">
                 فایل پیوست
               </Link>
-              <IconButton size="small" onClick={() => {}}>
+              <IconButton size="small" onClick={handleDeleteOldFile}>
                 <CloseIcon fontSize="16px" />
               </IconButton>
             </div>
           ) : null}
-          {oldFile ? (
+          {document ? (
             <FormControlLabel
               control={
                 <Checkbox
