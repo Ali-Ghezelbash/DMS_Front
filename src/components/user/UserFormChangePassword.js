@@ -36,8 +36,10 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
     });
   }, [user, reset]);
 
-  const onSubmit = (data) => mutation.mutate(data);
-
+  const onSubmit = (data) => {
+    const res = { password: data.password , id: user.id}
+    mutation.mutate(res);
+  }
   return (
     <Dialog open={show} onClose={handleClose}>
       <form>

@@ -11,6 +11,7 @@ import {
   OutlinedInput,
   Select,
   TextField,
+  FormHelperText
 } from "@mui/material";
 import { api } from "api";
 import { useEffect } from "react";
@@ -98,8 +99,9 @@ export const UserForm = ({ show, handleClose, user }) => {
           <Controller
             control={control}
             name="roles"
-            render={({ field: { onChange, value } }) => (
-              <FormControl fullWidth margin="dense">
+            rules={{ required: true }}
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <FormControl fullWidth margin="dense" error={error}>
                 <InputLabel>نقش ها</InputLabel>
                 <Select
                   multiple
@@ -119,6 +121,7 @@ export const UserForm = ({ show, handleClose, user }) => {
                     </MenuItem>
                   ))}
                 </Select>
+                { (error) ?<FormHelperText>این فیلد الزامی است</FormHelperText> : null}
               </FormControl>
             )}
           />

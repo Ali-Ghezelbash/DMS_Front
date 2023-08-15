@@ -15,6 +15,7 @@ import {
   Link,
   IconButton,
   Checkbox,
+  FormHelperText
 } from "@mui/material";
 import { api } from "api";
 import { useEffect, useState } from "react";
@@ -74,9 +75,9 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
   const mutation = useMutation(
     //document ? api.document.update : api.document.create,
     document
-      ? oldFile
-        ? api.document.update
-        : api.document.create
+      ? newVersion
+        ? api.document.create
+        : api.document.update
       : api.document.create,
     {
       onSuccess: () => {
@@ -90,6 +91,9 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
 
   const onSubmit = (data) => {
     const formData = new FormData();
+    console.log(data.id)
+    console.log("newVersion --- ", newVersion)
+    if(!newVersion)formData.append("id", data.id);
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("active", "1");
@@ -99,12 +103,10 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
     if (!file && !oldFile) return setEmptyFile(true);
 
     if (file) {
-      console.log(" --- file --- ");
       formData.append("file", file);
       formData.append("version", "1");
     } else if (oldFile) {
       formData.append("id", data.id);
-      console.log(" --- oldFile --- ");
       formData.append("fileName", oldFile);
       formData.append("version", "1");
     }
@@ -166,6 +168,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
                     </MenuItem>
                   ))}
                 </Select>
+                { (error) ?<FormHelperText>این فیلد الزامی است</FormHelperText> : null}
               </FormControl>
             )}
           />
@@ -173,8 +176,9 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
           <Controller
             control={control}
             name="category_id"
-            render={({ field: { onChange, value } }) => (
-              <FormControl fullWidth margin="dense">
+            rules={{ required: true }}
+            render={({ field: { onChange, value }, fieldState: { error } }) => (
+              <FormControl fullWidth margin="dense" error={error}>
                 <InputLabel>دسته‌بندی</InputLabel>
                 <Select
                   value={value}
@@ -187,6 +191,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
                     </MenuItem>
                   ))}
                 </Select>
+                { (error) ?<FormHelperText>این فیلد الزامی است</FormHelperText> : null}
               </FormControl>
             )}
           />

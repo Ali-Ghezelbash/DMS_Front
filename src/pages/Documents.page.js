@@ -31,13 +31,13 @@ export default function DocumentsPage() {
   const [selectedDocument, setSelectedDocument] = React.useState();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const [category_id, setCategory_id] = React.useState();
-  const [user_id, setUser_id] = React.useState();
+  const [userId, setuserId] = React.useState();
 
   const { data: listUsers } = useQuery("users", api.user.list);
   const { data: listCategories } = useQuery("categories", api.category.list);
   const { data, isLoading, refetch } = useQuery(
-    ["document", category_id, user_id],
-    () => api.document.list({ category_id, user_id })
+    ["document", category_id, userId],
+    () => api.document.list({ category_id, userId })
   );
   const navigate = useNavigate();
 
@@ -79,7 +79,7 @@ export default function DocumentsPage() {
   };
 
   const handleChangeCreator = (event) => {
-    setUser_id(event.target.value);
+    setuserId(event.target.value);
   };
 
   if (isLoading) return <div>loading</div>;
@@ -129,14 +129,14 @@ export default function DocumentsPage() {
             <Select
               labelId="demo-select-small-label"
               id="demo-select-small"
-              value={user_id}
+              value={userId}
               label="ایجاد شده توسط"
               onChange={handleChangeCreator}
               startAdornment={
                 <IconButton
                   size="small"
-                  sx={{ display: user_id ? "" : "none" }}
-                  onClick={() => setUser_id(undefined)}
+                  sx={{ display: userId ? "" : "none" }}
+                  onClick={() => setuserId(undefined)}
                 >
                   <CloseIcon fontSize="16px" />
                 </IconButton>
