@@ -209,7 +209,7 @@ export default function DocumentsPage() {
                     </a>
                   </TableCell>
                   <TableCell align="center">
-                    <Button onClick={() => {navigate("/document");}}>مشاهده</Button>
+                    <Button onClick={() => {navigate("/document", { state: row });}}>مشاهده</Button>
                     <Button>اشتراک گذاری</Button>
                     <Button onClick={() => handelEdit(row)}>ویرایش</Button>
                     <Button color="error" onClick={(e) => handelDelete(e, row)}>

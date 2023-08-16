@@ -106,7 +106,6 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
       formData.append("file", file);
       formData.append("version", "1");
     } else if (oldFile) {
-      formData.append("id", data.id);
       formData.append("fileName", oldFile);
       formData.append("version", "1");
     }
