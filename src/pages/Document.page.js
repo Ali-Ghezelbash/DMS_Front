@@ -107,9 +107,7 @@ export default function DocumentPage() {
 
   const onSubmit = (data) => {
     const formData = new FormData();
-    console.log(data.id)
-    console.log("newVersion --- ", newVersion)
-    if (!newVersion) formData.append("id", data.id);
+    if (document && !newVersion) formData.append("id", data.id);
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("active", "1");

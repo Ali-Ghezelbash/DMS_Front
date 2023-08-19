@@ -146,7 +146,9 @@ export const Layout = () => {
               {pages.map((page) => (
                 <Button
                   key={page.title}
-                  onClick={() => handleNavMenuClick(page.link)}
+                  onClick={() => {
+                    if (page.title === "خروج") tokenManager.deleteToken()
+                  handleNavMenuClick(page.link);}}
                   sx={{ my: 2, color: "white", display: "block" }}
                 >
                   {page.title}
