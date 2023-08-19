@@ -21,7 +21,7 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
     reset,
   } = useForm();
 
-  const mutation = useMutation(api.user.update, {
+  const mutation = useMutation(api.user.changePassword, {
     onSuccess: (res) => {
       handleClose();
       queryClient.invalidateQueries("users");
@@ -37,9 +37,9 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
   }, [user, reset]);
 
   const onSubmit = (data) => {
-    const res = { password: data.password , id: user.id}
+    const res = { password: data.password, id: user.id };
     mutation.mutate(res);
-  }
+  };
   return (
     <Dialog open={show} onClose={handleClose}>
       <form>
