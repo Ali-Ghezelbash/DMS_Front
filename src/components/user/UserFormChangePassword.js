@@ -54,17 +54,6 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
             helperText={errors.password ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.password)}
           />
-
-          <TextField
-            margin="dense"
-            label="تایید رمز عبور"
-            fullWidth
-            inputProps={{ ...register("confirmPassword", { required: true }) }}
-            helperText={
-              errors.confirmPassword ? "این فیلد الزامی است" : undefined
-            }
-            error={Boolean(errors.confirmPassword)}
-          />
         </DialogContent>
         <DialogActions>
           <Button

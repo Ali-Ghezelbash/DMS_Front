@@ -1,37 +1,39 @@
 import {
   Button,
+  Checkbox,
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   FormControl,
+  FormHelperText,
+  IconButton,
   InputLabel,
+  Link,
   ListItemText,
   MenuItem,
   OutlinedInput,
   Select,
   TextField,
-  Typography,
-  Link,
-  IconButton,
-  Checkbox,
-  FormHelperText
 } from "@mui/material";
+import FormControlLabel from "@mui/material/FormControlLabel";
 import { api } from "api";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import CloseIcon from "@mui/icons-material/Close";
-import FormControlLabel from "@mui/material/FormControlLabel";
+import { QueryClient, useMutation, useQuery } from "react-query";
 
-export const DocumentForm = ({ show, handleClose, document, refetch }) => {
-  const queryClient = useQueryClient();
+export const DocumentForm = ({ onClose, documentId, refetch }) => {
   const { data: listRoles } = useQuery("roles", api.role.list);
   const { data: listCategories } = useQuery("categories", api.category.list);
-  const [file, setFile] = useState();
+  const { data: documentData } = useQuery(
+    "GET_DOCUMENT_ITEM",
+    () => api.document.getItem(documentId),
+    { enabled: !!documentId && !!listCategories && !!listRoles }
+  );
+
+  const [file, setFile] = useState(null);
   const [emptyFile, setEmptyFile] = useState(false);
-  const [oldFile, setOldFile] = useState(document?.file);
-  const [newVersion, setNewVersion] = useState(false);
+  const [newVersion, setNewVersion] = useState(false)
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -40,49 +42,29 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
     }
   };
 
-  const handleDeleteOldFile = () => {
-    setEmptyFile(false);
-    setOldFile(null);
-  };
-
-  const handleChangeNewVersion = (event) => {
-    setNewVersion(event.target.checked);
-  };
-
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
     reset,
-  } = useForm(document);
+  } = useForm();
 
   useEffect(() => {
-    if (document) reset(document);
-    else
-      reset({
-        title: "",
-        description: "",
-        roles: [],
-        categories: [],
-      });
-  }, [document, reset]);
-
-  useEffect(() => {
-    setOldFile(document?.file);
-  }, [document]);
+    if (documentData?.data) reset(documentData.data);
+  }, [documentData]);
 
   const mutation = useMutation(
     //document ? api.document.update : api.document.create,
-    document
+    documentId
       ? newVersion
         ? api.document.create
         : api.document.update
       : api.document.create,
     {
       onSuccess: () => {
-        handleClose();
-        queryClient.invalidateQueries("documents");
+        onClose();
+        // QueryClient.invalidateQueries("documents");
         reset();
         refetch();
       },
@@ -91,20 +73,18 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
 
   const onSubmit = (data) => {
     const formData = new FormData();
-    if (document && !newVersion) formData.append("id", data.id);
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("active", "1");
     formData.append("roles", JSON.stringify(data.roles));
-    formData.append("category_id", data.category_id);
-
-    if (!file && !oldFile) return setEmptyFile(true);
-
+    formData.append("categoryId", data.categoryId);
+    // if (!file && !oldFile) return setEmptyFile(true);
+    if (documentId && !newVersion) formData.append("id", data.id);
     if (file) {
       formData.append("file", file);
-      formData.append("version", "1");
-    } else if (oldFile) {
-      formData.append("fileName", oldFile);
+      formData.append("version", data.version++);
+    } else if (!file) {
+      formData.append("fileName", data.file);
       formData.append("version", "1");
     }
     mutation.mutate(
@@ -116,25 +96,22 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
   };
 
   return (
-    <Dialog open={show} onClose={handleClose}>
+    <Dialog open={true} onClose={onClose}>
       <form>
-        <DialogTitle>{document ? "ویرایش" : "ایجاد"} سند</DialogTitle>
+        <DialogTitle>{documentId ? "ویرایش" : "ایجاد"} سند</DialogTitle>
         <DialogContent>
           <TextField
-            autoFocus
             margin="dense"
             label="عنوان"
             fullWidth
-            defaultValue={document ? document.title : ""}
-            inputProps={{ ...register("title", { required: true }) }}
             helperText={errors.title ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.title)}
+            {...register("title", { required: true })}
           />
           <TextField
             margin="dense"
             label="توضیحات"
             fullWidth
-            defaultValue={document ? document.description : ""}
             inputProps={{ ...register("description", { required: true }) }}
             helperText={errors.description ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.description)}
@@ -165,14 +142,16 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
                     </MenuItem>
                   ))}
                 </Select>
-                { (error) ?<FormHelperText>این فیلد الزامی است</FormHelperText> : null}
+                {error ? (
+                  <FormHelperText>این فیلد الزامی است</FormHelperText>
+                ) : null}
               </FormControl>
             )}
           />
 
           <Controller
             control={control}
-            name="category_id"
+            name="categoryId"
             rules={{ required: true }}
             render={({ field: { onChange, value }, fieldState: { error } }) => (
               <FormControl fullWidth margin="dense" error={error}>
@@ -188,7 +167,9 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
                     </MenuItem>
                   ))}
                 </Select>
-                { (error) ?<FormHelperText>این فیلد الزامی است</FormHelperText> : null}
+                {error ? (
+                  <FormHelperText>این فیلد الزامی است</FormHelperText>
+                ) : null}
               </FormControl>
             )}
           />
@@ -202,26 +183,26 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
             error={emptyFile}
             dir="ltr"
           />
-          {oldFile ? (
+          {documentData?.data ? (
             <div>
               <Link
-                href={"http://localhost:3000/uploads/" + oldFile}
+                href={"http://localhost:3000/uploads/" + documentData?.data.file}
                 target="_blank"
               >
                 فایل پیوست
               </Link>
-              <IconButton size="small" onClick={handleDeleteOldFile}>
+              {/* <IconButton size="small" onClick={handleDeleteOldFile}>
                 <CloseIcon fontSize="16px" />
-              </IconButton>
+              </IconButton> */}
             </div>
           ) : null}
-          {document ? (
+          {documentData?.data ? (
             <FormControlLabel
               control={
                 <Checkbox
                   size="small"
-                  checked={newVersion}
-                  onChange={handleChangeNewVersion}
+                  // checked={newVersion}
+                  // onChange={handleChangeNewVersion}
                 />
               }
               label="نسخه جدید"
@@ -231,7 +212,7 @@ export const DocumentForm = ({ show, handleClose, document, refetch }) => {
         <DialogActions>
           <Button
             onClick={() => {
-              handleClose();
+              onClose();
               reset();
             }}
           >

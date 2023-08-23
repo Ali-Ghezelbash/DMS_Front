@@ -4,6 +4,7 @@ import { role } from "./role";
 import { document } from "./document";
 import { category } from "./category";
 import { file } from "./file";
+import {comment} from "./comment";
 
 export const api = {
   auth,
@@ -12,4 +13,5 @@ export const api = {
   document,
   category,
   file,
+  comment
 };

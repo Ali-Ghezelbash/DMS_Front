@@ -1,6 +1,7 @@
 import {
   Box,
   Button,
+  IconButton,
   Menu,
   Paper,
   Stack,
@@ -16,6 +17,9 @@ import { api } from "api";
 import { UserForm, UserFormChangePassword } from "components";
 import React from "react";
 import { useMutation, useQuery } from "react-query";
+import PasswordIcon from '@mui/icons-material/Password';
+import DeleteIcon from '@mui/icons-material/Delete';
+import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 
 export default function UsersPage() {
   const { data, isLoading, refetch } = useQuery("users", api.user.list);
@@ -104,13 +108,27 @@ export default function UsersPage() {
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
                   <TableCell align="center">
-                    <Button onClick={() => handelEdit(row)}>ویرایش</Button>
-                    <Button onClick={() => handelEditPassword(row)}>
-                      تغییر رمزعبور
-                    </Button>
-                    <Button color="error" onClick={(e) => handelDelete(e, row)}>
-                      حذف
-                    </Button>
+                  <IconButton
+                      color="primary"
+                      size="small"
+                      onClick={() => handelEdit(row)}
+                    >
+                      <ModeEditOutlineIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      onClick={() => handelEditPassword(row)}
+                    >
+                      <PasswordIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      onClick={(e) => handelDelete(e, row)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}

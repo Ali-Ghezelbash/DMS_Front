@@ -1,55 +1,49 @@
 import {
   Box,
   Button,
-  Paper,
-  Menu,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Typography,
+  Divider,
   FormControl,
-  Select,
-  InputLabel,
-  MenuItem,
-  IconButton,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
-  ListItemText,
-  OutlinedInput,
-  TextField,
-  Link,
-  Checkbox,
   FormHelperText,
+  InputLabel,
   List,
   ListItem,
-  Divider,
+  ListItemText,
+  MenuItem,
+  OutlinedInput,
+  Select,
+  Stack,
+  TextField,
+  Typography,
 } from "@mui/material";
 import { api } from "api";
-import { DocumentForm } from "components";
+import axios from "axios";
 import React, { useEffect, useState } from "react";
-import { useMutation, useQuery, useQueryClient } from "react-query";
-import CloseIcon from "@mui/icons-material/Close";
 import { Controller, useForm } from "react-hook-form";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import { Route, useLocation, useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useLocation, useNavigate } from "react-router-dom";
+import IconButton from "@mui/material/IconButton";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { tokenManager } from "utils";
 
 export default function DocumentPage() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
   const location = useLocation();
-  const [document, setdDocument] = useState(location.state);
+
+  const { data: comments } = useQuery(["comment"], () => api.comment.list());
+
+  // const [document, setdDocument] = useState(location.state);
   const { data: listRoles } = useQuery("roles", api.role.list);
   const { data: listCategories } = useQuery("categories", api.category.list);
   const [file, setFile] = useState();
   const [emptyFile, setEmptyFile] = useState(false);
-  const [oldFile, setOldFile] = useState(document?.file);
   const [newVersion, setNewVersion] = useState(false);
+  const documentId = location.state;
+  const { data: documentData } = useQuery(
+    "GET_DOCUMENT_ITEM",
+    () => api.document.getItem(documentId)
+    // { enabled: !!documentId && !!listCategories && !!listRoles }
+  );
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -58,47 +52,22 @@ export default function DocumentPage() {
     }
   };
 
-  const handleDeleteOldFile = () => {
-    setEmptyFile(false);
-    setOldFile(null);
-  };
-
-  const handleChangeNewVersion = (event) => {
-    setNewVersion(event.target.checked);
-  };
-
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
     reset,
-  } = useForm(document);
+  } = useForm();
 
   useEffect(() => {
-    if (document) reset(document);
-    else
-      reset({
-        title: "",
-        description: "",
-        roles: [],
-        categories: [],
-      });
-  }, [document, reset]);
-
-  useEffect(() => {
-    setOldFile(document?.file);
-  }, [document]);
+    if (documentData?.data) reset(documentData.data);
+  }, [documentData]);
 
   const mutation = useMutation(
-    document
-      ? newVersion
-        ? api.document.create
-        : api.document.update
-      : api.document.create,
+    newVersion ? api.document.create : api.document.update,
     {
       onSuccess: () => {
-        // handleClose();
         queryClient.invalidateQueries("documents");
         reset();
       },
@@ -107,24 +76,25 @@ export default function DocumentPage() {
 
   const onSubmit = (data) => {
     const formData = new FormData();
-    if (document && !newVersion) formData.append("id", data.id);
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("active", "1");
     formData.append("roles", JSON.stringify(data.roles));
-    formData.append("category_id", data.category_id);
-
-    if (!file && !oldFile) return setEmptyFile(true);
-
+    formData.append("categoryId", data.categoryId);
+    // if (!file && !oldFile) return setEmptyFile(true);
+    if (documentId && !newVersion) formData.append("id", data.id);
     if (file) {
       formData.append("file", file);
-      formData.append("version", "1");
-    } else if (oldFile) {
-      formData.append("fileName", oldFile);
+      formData.append("version", data.version++);
+    } else if (!file) {
+      formData.append("fileName", data.file);
       formData.append("version", "1");
     }
     mutation.mutate(
       formData
+      // document
+      //   ? { ...data, id: document.id, file }
+      //   : { ...data, version: 1, active: 1, file }
     );
   };
 
@@ -137,25 +107,23 @@ export default function DocumentPage() {
         sx={{ backgroundColor: "#f5f5f5", p: 2 }}
       >
         <Typography variant="h5">مستند</Typography>
-        {/* <Button variant="contained" onClick={console.log()}>
-          ویرایش
-        </Button> */}
-        <div >
+        <div>
           <Button
             variant="contained"
             sx={{ width: 120, padding: 1, margin: 2 }}
-            onClick={handleSubmit(onSubmit)}
+            onClick={() => {
+              reset();
+              navigate("/documents");
+            }}
           >
             ثبت
           </Button>
           <Button
             variant="outlined"
             sx={{ width: 120, padding: 1, margin: 2 }}
-            onClick={() => {navigate("/documents");}}
-            // onClick={() => {
-            //   //handleClose();
-            //   reset();
-            // }}
+            onClick={() => {
+              navigate("/documents");
+            }}
           >
             لغو
           </Button>
@@ -163,21 +131,18 @@ export default function DocumentPage() {
       </Stack>
       <Box sx={{ p: 3 }}>
         <TextField
-          autoFocus
           margin="dense"
           label="عنوان"
           fullWidth
-          defaultValue={document ? document.title : ""}
-          inputProps={{ ...register("title", { required: true }) }}
           helperText={errors.title ? "این فیلد الزامی است" : undefined}
           error={Boolean(errors.title)}
+          {...register("title", { required: true })}
         />
         <TextField
-          autoFocus
           margin="dense"
           label="توضیحات"
           fullWidth
-          defaultValue={document ? document.description : ""}
+          //defaultValue={document ? document.description : ""}
           inputProps={{ ...register("description", { required: true }) }}
           helperText={errors.description ? "این فیلد الزامی است" : undefined}
           error={Boolean(errors.description)}
@@ -208,15 +173,18 @@ export default function DocumentPage() {
                   </MenuItem>
                 ))}
               </Select>
-              {(error) ? <FormHelperText>این فیلد الزامی است</FormHelperText> : null}
+              {error ? (
+                <FormHelperText>این فیلد الزامی است</FormHelperText>
+              ) : null}
             </FormControl>
           )}
         />
         <Controller
           control={control}
-          name="category_id"
-          render={({ field: { onChange, value } }) => (
-            <FormControl fullWidth margin="dense">
+          name="categoryId"
+          rules={{ required: true }}
+          render={({ field: { onChange, value }, fieldState: { error } }) => (
+            <FormControl fullWidth margin="dense" error={error}>
               <InputLabel>دسته‌بندی</InputLabel>
               <Select
                 value={value}
@@ -229,12 +197,15 @@ export default function DocumentPage() {
                   </MenuItem>
                 ))}
               </Select>
+              {error ? (
+                <FormHelperText>این فیلد الزامی است</FormHelperText>
+              ) : null}
             </FormControl>
           )}
         />
         <Controller
           control={control}
-          name="category_id"
+          name="categoryId"
           render={({ field: { onChange, value } }) => (
             <FormControl fullWidth margin="dense">
               <InputLabel>نسخه</InputLabel>
@@ -262,60 +233,56 @@ export default function DocumentPage() {
           error={emptyFile}
           dir="ltr"
         />
-        <Typography
-          sx={{ pt: 2 }}
-          variant="h6">
+        <Typography sx={{ pt: 2 }} variant="h6">
           نظرات
         </Typography>
-        <List sx={{ width: '100%', maxWidth: 1360, bgcolor: 'background.paper' }}>
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="خیلی ممنون"
-              secondary={
-                <Typography variant="caption">
-                  {"علی قزلباش"}
-                </Typography>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Summer BBQ"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: 'inline' }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    علی قزلباش
-                  </Typography>
-                  {" — خیلی ممنون"}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
-          <Divider variant="inset" component="li" />
-          <ListItem alignItems="flex-start">
-            <ListItemText
-              primary="Oui Oui"
-              secondary={
-                <React.Fragment>
-                  <Typography
-                    sx={{ display: 'inline' }}
-                    component="span"
-                    variant="body2"
-                    color="text.primary"
-                  >
-                    Sandra Adams
-                  </Typography>
-                  {' — Do you have Paris recommendations? Have you ever…'}
-                </React.Fragment>
-              }
-            />
-          </ListItem>
+        <div>
+          <TextField margin="dense" label="نظر خود را بنویسید" fullWidth />
+          <Button
+            variant="contained"
+            sx={{ width: 120, padding: 1, margin: 2, marginLeft: 1 }}
+            onClick={() => {
+              reset();
+              navigate("/documents");
+            }}
+          >
+            ثبت
+          </Button>
+        </div>
+        <List
+          sx={{ width: "100%", maxWidth: 1360, bgcolor: "background.paper" }}
+        >
+          {comments?.data.map((item) => (
+            <>
+              <ListItem key={item.id} alignItems="flex-start">
+                <ListItemText
+                  primary={
+                    <>
+                      {tokenManager.isAdmin ||
+                      tokenManager.userIdToken() === item.userId ? (
+                        <IconButton
+                          color="primary"
+                          size="small"
+                          // onClick={() => setEdit(row.id)}
+                        >
+                          <DeleteIcon sx={{ fontSize: 16 }} />
+                        </IconButton>
+                      ) : null}
+                      <Typography variant="caption" sx={{ fontSize: "15px" }}>
+                        {item.message}
+                      </Typography>
+                    </>
+                  }
+                  secondary={
+                    <Typography variant="caption">
+                      {item.user.firstname + " " + item.user.lastname}
+                    </Typography>
+                  }
+                />
+              </ListItem>
+              <Divider variant="inset" component="li" />
+            </>
+          ))}
         </List>
       </Box>
     </Stack>

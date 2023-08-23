@@ -2,6 +2,7 @@ import {
   Box,
   Button,
   Chip,
+  IconButton,
   Menu,
   MenuItem,
   Paper,
@@ -18,6 +19,8 @@ import { api } from "api";
 import { RoleForm } from "components";
 import React from "react";
 import { useQuery } from "react-query";
+import DeleteIcon from '@mui/icons-material/Delete';
+import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 
 export default function RolesPage() {
   const { data, isLoading } = useQuery("roles", api.role.list);
@@ -56,7 +59,6 @@ export default function RolesPage() {
     handleClick(e);
   };
 
-  console.log(data);
 
   if (isLoading) return <div>loading</div>;
 
@@ -104,10 +106,20 @@ export default function RolesPage() {
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
                   <TableCell align="center">
-                    <Button onClick={() => handelEdit(row)}>ویرایش</Button>
-                    <Button color="error" onClick={(e) => handelDelete(e, row)}>
-                      حذف
-                    </Button>
+                  <IconButton
+                      color="primary"
+                      size="small"
+                      onClick={() => handelEdit(row)}
+                    >
+                      <ModeEditOutlineIcon fontSize="small" />
+                    </IconButton>
+                    <IconButton
+                      color="primary"
+                      size="small"
+                      onClick={(e) => handelDelete(e, row)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
                   </TableCell>
                 </TableRow>
               ))}

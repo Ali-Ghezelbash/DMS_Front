@@ -4,6 +4,13 @@ const TOKEN_KEY = "TOKEN";
 
 const getToken = () => localStorage.getItem(TOKEN_KEY);
 
+const userIdToken = () => {
+  const res = getToken();
+  if (!res) return false;
+  var decoded = jwt_decode(res);
+  return decoded.id;
+};
+
 const setToken = (token) => {
   localStorage.setItem(TOKEN_KEY, token);
 };
@@ -18,4 +25,10 @@ const isAdmin = () => {
   return !!decoded.isAdmin;
 };
 
-export const tokenManager = { getToken, setToken, deleteToken, isAdmin };
+export const tokenManager = {
+  getToken,
+  setToken,
+  deleteToken,
+  isAdmin,
+  userIdToken,
+};
