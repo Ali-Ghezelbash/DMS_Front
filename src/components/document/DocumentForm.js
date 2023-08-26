@@ -33,7 +33,7 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
 
   const [file, setFile] = useState(null);
   const [emptyFile, setEmptyFile] = useState(false);
-  const [newVersion, setNewVersion] = useState(false)
+  const [newVersion, setNewVersion] = useState(false);
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -51,20 +51,18 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
   } = useForm();
 
   useEffect(() => {
-    if (documentData?.data) reset(documentData.data);
+    if (documentData?.data)
+      reset({
+        ...documentData.data,
+        roles: documentData.data.document_roles.map((i) => i.role.id),
+      });
   }, [documentData]);
 
   const mutation = useMutation(
-    //document ? api.document.update : api.document.create,
-    documentId
-      ? newVersion
-        ? api.document.create
-        : api.document.update
-      : api.document.create,
+    !documentId || newVersion ? api.document.create : api.document.update,
     {
       onSuccess: () => {
         onClose();
-        // QueryClient.invalidateQueries("documents");
         reset();
         refetch();
       },
@@ -75,24 +73,16 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("description", data.description);
-    formData.append("active", "1");
     formData.append("roles", JSON.stringify(data.roles));
     formData.append("categoryId", data.categoryId);
-    // if (!file && !oldFile) return setEmptyFile(true);
-    if (documentId && !newVersion) formData.append("id", data.id);
+    if (documentId && !newVersion) formData.append("id", documentId);
+    if (newVersion) formData.append("documentKey", documentId);
     if (file) {
       formData.append("file", file);
-      formData.append("version", data.version++);
     } else if (!file) {
       formData.append("fileName", data.file);
-      formData.append("version", "1");
     }
-    mutation.mutate(
-      formData
-      // document
-      //   ? { ...data, id: document.id, file }
-      //   : { ...data, version: 1, active: 1, file }
-    );
+    mutation.mutate(formData);
   };
 
   return (
@@ -186,7 +176,9 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
           {documentData?.data ? (
             <div>
               <Link
-                href={"http://localhost:3000/uploads/" + documentData?.data.file}
+                href={
+                  "http://localhost:3000/uploads/" + documentData?.data.file
+                }
                 target="_blank"
               >
                 فایل پیوست
@@ -201,8 +193,8 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
               control={
                 <Checkbox
                   size="small"
-                  // checked={newVersion}
-                  // onChange={handleChangeNewVersion}
+                  checked={newVersion}
+                  onChange={() => setNewVersion(!newVersion)}
                 />
               }
               label="نسخه جدید"

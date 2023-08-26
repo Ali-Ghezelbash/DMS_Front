@@ -10,27 +10,39 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography
+  Typography,
 } from "@mui/material";
 import { api } from "api";
-import { DocumentForm } from "components";
+import { DeleteConfirm, DocumentForm } from "components";
 import { useState } from "react";
 import { useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
-import ShareIcon from '@mui/icons-material/Share';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import ShareIcon from "@mui/icons-material/Share";
+import VisibilityIcon from "@mui/icons-material/Visibility";
 
 export default function DocumentsPage() {
   const navigate = useNavigate();
 
-  const { data, isLoading, refetch } = useQuery(["document"], () => api.document.list());
+  const { data, isLoading, refetch } = useQuery(["document"], () =>
+    api.document.list()
+  );
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState();
-  const headers = ["عنوان", "توضیحات", "دسته بندی", "ایجاد کننده", "تاریخ ایجاد", "نسخه", "نظرات", "فایل پیوست", "عملیات"]
-  console.log(data)
+  const headers = [
+    "عنوان",
+    "توضیحات",
+    "دسته بندی",
+    "ایجاد کننده",
+    "تاریخ ایجاد",
+    "نسخه",
+    "نظرات",
+    "فایل پیوست",
+    "عملیات",
+  ];
+
   if (isLoading) return <div>loading</div>;
   return (
     <Stack gap={2}>
@@ -48,9 +60,11 @@ export default function DocumentsPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-              {headers.map((item) => (
-                <TableCell key={item} align="center">{item}</TableCell>
-              ))}
+                {headers.map((item) => (
+                  <TableCell key={item} align="center">
+                    {item}
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -81,7 +95,9 @@ export default function DocumentsPage() {
                     <IconButton
                       color="primary"
                       size="small"
-                      onClick={() => {navigate("/document", { state: row.id });}}
+                      onClick={() => {
+                        navigate("/document", { state: row.id });
+                      }}
                     >
                       <VisibilityIcon fontSize="small" />
                     </IconButton>
@@ -99,13 +115,14 @@ export default function DocumentsPage() {
                     >
                       <ShareIcon fontSize="small" />
                     </IconButton>
-                    <IconButton
+                    {/* <IconButton
                       color="primary"
                       size="small"
                       // onClick={() => setEdit(row.id)}
                     >
                       <DeleteIcon fontSize="small" />
-                    </IconButton>
+                    </IconButton> */}
+                    <DeleteConfirm onDelete={() => {}} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -119,7 +136,7 @@ export default function DocumentsPage() {
             setShow(false);
             setEdit(undefined);
           }}
-          refetch = {refetch}
+          refetch={refetch}
           documentId={edit}
         />
       )}
