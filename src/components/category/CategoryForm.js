@@ -9,43 +9,45 @@ import {
 import { api } from "api";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
-export const CategoryForm = ({ show, handleClose, category }) => {
-  const queryClient = useQueryClient();
+export const CategoryForm = ({ onClose, categoryId, refetch }) => {
+
+  const { data: categoryData } = useQuery(
+    "GET_CATEGORY_ITEM",
+    () => api.category.getItem(categoryId),
+  );
 
   const {
     register,
     handleSubmit,
     formState: { errors },
-    getValues,
-    control,
     reset,
-  } = useForm(category);
+  } = useForm(categoryData?.data);
 
   useEffect(() => {
-    if (category) reset(category);
-    else reset({ name: "", value: "" });
-  }, [category, reset]);
+    if (categoryData?.data) reset(categoryData?.data);
+    else reset({ name: ""});
+  }, [categoryData]);
 
   const mutation = useMutation(
-    category ? api.category.update : api.category.create,
+    categoryId ? api.category.update : api.category.create,
     {
       onSuccess: () => {
-        handleClose();
-        queryClient.invalidateQueries("categories");
+        onClose();
         reset();
+        refetch();
       },
     }
   );
 
   const onSubmit = (data) =>
-    mutation.mutate(category ? { ...data, id: category.id } : data);
+    mutation.mutate(categoryData ? { ...data, id: categoryData?.data.id } : data);
 
   return (
-    <Dialog open={show} onClose={handleClose}>
+    <Dialog open={true} onClose={onClose}>
       <form>
-        <DialogTitle>{category ? "ویرایش" : "ایجاد"} دسته‌بندی</DialogTitle>
+        <DialogTitle>{categoryData?.data ? "ویرایش" : "ایجاد"} دسته‌بندی</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -56,20 +58,12 @@ export const CategoryForm = ({ show, handleClose, category }) => {
             helperText={errors.name ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.name)}
           />
-
-          <TextField
-            margin="dense"
-            label="کد"
-            fullWidth
-            inputProps={{ ...register("value", { required: true }) }}
-            helperText={errors.value ? "این فیلد الزامی است" : undefined}
-            error={Boolean(errors.value)}
-          />
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => {
-              handleClose();
+              onClose();
+              reset();
             }}
           >
             لغو

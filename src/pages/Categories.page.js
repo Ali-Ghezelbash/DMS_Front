@@ -1,10 +1,8 @@
+import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import {
   Box,
   Button,
-  Chip,
   IconButton,
-  Menu,
-  MenuItem,
   Paper,
   Stack,
   Table,
@@ -13,14 +11,12 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from "@mui/material";
 import { api } from "api";
-import { CategoryForm } from "components";
-import React from "react";
+import { CategoryForm, DeleteConfirm } from "components";
+import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
-import DeleteIcon from '@mui/icons-material/Delete';
-import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 
 
 export default function CategoriesPage() {
@@ -31,40 +27,19 @@ export default function CategoriesPage() {
 
   const { mutate } = useMutation({ mutationFn: api.category.delete });
 
-  const [open, setOpen] = React.useState(false);
-  const [selectedCategory, setSelectedCategory] = React.useState();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [show, setShow] = useState(false);
+  const [edit, setEdit] = useState();
+  const headers = [
+    "نام",
+    "تاریخ ایجاد",
+    "عملیات",
+  ];
 
-  const handleCloseDelete = () => {
-    setAnchorEl(null);
-  };
-
-  const handleConfirmDelete = () => {
-    setAnchorEl(null);
-    mutate(selectedCategory.id, { onSuccess: refetch });
-  };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setSelectedCategory(undefined);
-    setOpen(false);
-  };
-
-  const handelEdit = (category) => {
-    setSelectedCategory(category);
-    setOpen(true);
-  };
-
-  const handelDelete = (e, category) => {
-    setSelectedCategory(category);
-    setAnchorEl(e.currentTarget);
+  const handleConfirmDelete = (categoryId) => {
+    mutate(categoryId, { onSuccess: refetch });
   };
 
   if (isLoading) return <div>loading</div>;
-
   return (
     <Stack gap={2}>
       <Stack
@@ -74,7 +49,7 @@ export default function CategoriesPage() {
         sx={{ backgroundColor: "#f5f5f5", p: 2 }}
       >
         <Typography variant="h5">لیست دسته‌بندی ها</Typography>
-        <Button variant="contained" onClick={handleClickOpen}>
+        <Button variant="contained" onClick={() => setShow(true)}>
           ایجاد دسته‌بندی
         </Button>
       </Stack>
@@ -83,10 +58,11 @@ export default function CategoriesPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell align="center">نام</TableCell>
-                <TableCell align="center">کد</TableCell>
-                <TableCell align="center">تاریخ ایجاد</TableCell>
-                <TableCell align="center">عملیات</TableCell>
+                {headers.map((item) => (
+                  <TableCell key={item} align="center">
+                    {item}
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -96,7 +72,6 @@ export default function CategoriesPage() {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell align="center">{row.name}</TableCell>
-                  <TableCell align="center">{row.value}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
@@ -104,17 +79,11 @@ export default function CategoriesPage() {
                     <IconButton
                       color="primary"
                       size="small"
-                      onClick={() => handelEdit(row)}
+                      onClick={() => setEdit(row.id)}
                     >
                       <ModeEditOutlineIcon fontSize="small" />
                     </IconButton>
-                    <IconButton
-                      color="primary"
-                      size="small"
-                      onClick={(e) => handelDelete(e, row)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+                    <DeleteConfirm onDelete={() => { handleConfirmDelete(row.id) }} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -122,31 +91,16 @@ export default function CategoriesPage() {
           </Table>
         </TableContainer>
       </Box>
-      <CategoryForm
-        show={open}
-        handleClose={handleClose}
-        isCreate={true}
-        category={selectedCategory}
-      />
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseDelete}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        PaperProps={{ sx: { paddingInline: 1.5 } }}
-      >
-        <Button variant="contained" color="error" onClick={handleConfirmDelete}>
-          تایید
-        </Button>
-        <Button onClick={handleCloseDelete}>لغو</Button>
-      </Menu>
+      {(show || edit) && (
+        <CategoryForm
+          onClose={() => {
+            setShow(false);
+            setEdit(undefined);
+          }}
+          refetch={refetch}
+          categoryId={edit}
+        />
+      )}
     </Stack>
   );
 }

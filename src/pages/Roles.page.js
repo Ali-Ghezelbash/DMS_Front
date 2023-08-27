@@ -1,10 +1,9 @@
+import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import {
   Box,
   Button,
   Chip,
   IconButton,
-  Menu,
-  MenuItem,
   Paper,
   Stack,
   Table,
@@ -13,55 +12,32 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from "@mui/material";
 import { api } from "api";
-import { RoleForm } from "components";
-import React from "react";
-import { useQuery } from "react-query";
-import DeleteIcon from '@mui/icons-material/Delete';
-import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
+import { DeleteConfirm, RoleForm } from "components";
+import { useState } from "react";
+import { useMutation, useQuery } from "react-query";
 
 export default function RolesPage() {
-  const { data, isLoading } = useQuery("roles", api.role.list);
-  const [open, setOpen] = React.useState(false);
-  const [selectedRole, setSelectedRole] = React.useState();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const { data, isLoading, refetch } = useQuery("roles", api.role.list);
+  
+  const { mutate } = useMutation({ mutationFn: api.role.delete });
 
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
+  const [show, setShow] = useState(false);
+  const [edit, setEdit] = useState();
+  const headers = [
+    "نام",
+    "ادمین",
+    "تاریخ ایجاد",
+    "عملیات",
+  ];
+
+  const handleConfirmDelete = (RoleId) => {
+    mutate(RoleId, { onSuccess: refetch });
   };
-
-  const handleCloseDelete = () => {
-    setAnchorEl(null);
-  };
-
-  const handleConfirmDelete = () => {
-    setAnchorEl(null);
-  };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setSelectedRole(undefined);
-    setOpen(false);
-  };
-
-  const handelEdit = (role) => {
-    setSelectedRole(role);
-    setOpen(true);
-  };
-
-  const handelDelete = (e, role) => {
-    setSelectedRole(role);
-    handleClick(e);
-  };
-
 
   if (isLoading) return <div>loading</div>;
-
   return (
     <Stack gap={2}>
       <Stack
@@ -71,7 +47,7 @@ export default function RolesPage() {
         sx={{ backgroundColor: "#f5f5f5", p: 2 }}
       >
         <Typography variant="h5">لیست نقش ها</Typography>
-        <Button variant="contained" onClick={handleClickOpen}>
+        <Button variant="contained" onClick={() => setShow(true)}>
           ایجاد نقش
         </Button>
       </Stack>
@@ -80,11 +56,11 @@ export default function RolesPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell align="center">نام</TableCell>
-                <TableCell align="center">کد</TableCell>
-                <TableCell align="center">ادمین</TableCell>
-                <TableCell align="center">تاریخ ایجاد</TableCell>
-                <TableCell align="center">عملیات</TableCell>
+              {headers.map((item) => (
+                  <TableCell key={item} align="center">
+                    {item}
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -109,17 +85,11 @@ export default function RolesPage() {
                   <IconButton
                       color="primary"
                       size="small"
-                      onClick={() => handelEdit(row)}
+                      onClick={() => setEdit(row.id)}
                     >
                       <ModeEditOutlineIcon fontSize="small" />
                     </IconButton>
-                    <IconButton
-                      color="primary"
-                      size="small"
-                      onClick={(e) => handelDelete(e, row)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+                    <DeleteConfirm onDelete={() => { handleConfirmDelete(row.id) }} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -127,31 +97,16 @@ export default function RolesPage() {
           </Table>
         </TableContainer>
       </Box>
-      <RoleForm
-        show={open}
-        handleClose={handleClose}
-        isCreate={true}
-        role={selectedRole}
-      />
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseDelete}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        PaperProps={{ sx: { paddingInline: 1.5 } }}
-      >
-        <Button variant="contained" color="error" onClick={handleConfirmDelete}>
-          تایید
-        </Button>
-        <Button onClick={handleCloseDelete}>لغو</Button>
-      </Menu>
+      {(show || edit) && (
+        <RoleForm
+          onClose={() => {
+            setShow(false);
+            setEdit(undefined);
+          }}
+          refetch={refetch}
+          roleId={edit}
+        />
+      )}
     </Stack>
   );
 }

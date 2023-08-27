@@ -1,5 +1,6 @@
-import { Menu, Button } from "@mui/material";
+import { Menu, Button, IconButton } from "@mui/material";
 import React from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 export const DeleteConfirm = ({ onDelete }) => {
   const [anchorEl, setAnchorEl] = React.useState(null);
@@ -19,9 +20,13 @@ export const DeleteConfirm = ({ onDelete }) => {
 
   return (
     <>
-      <Button color="error" onClick={handelDelete}>
-        حذف
-      </Button>
+      <IconButton
+        color="primary"
+        size="small"
+        onClick={handelDelete}
+      >
+        <DeleteIcon fontSize="small" />
+      </IconButton>
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}

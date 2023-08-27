@@ -18,50 +18,55 @@ import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-export const UserForm = ({ show, handleClose, user }) => {
-  const queryClient = useQueryClient();
-  const { data } = useQuery("roles", api.role.list);
+export const UserForm = ({ onClose, userId, refetch }) => {
+  const { data: listRoles } = useQuery("roles", api.role.list);
+
+  const { data: userData } = useQuery(
+    "GET_USER_ITEM",
+    () => api.user.getItem(userId),
+  );
+  console.log(userData?.data)
   const {
     register,
     handleSubmit,
     control,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm(userData?.data);
 
-  const mutation = useMutation(user ? api.user.update : api.user.create, {
+  const mutation = useMutation(userData?.data ? api.user.update : api.user.create, {
     onSuccess: (res) => {
-      handleClose();
-      queryClient.invalidateQueries("users");
+      onClose();
       reset();
+      refetch();
     },
   });
 
   useEffect(() => {
-    if (user) reset(user);
+    if (userData?.data) reset(userData?.data);
     else
       reset({
         firstname: "",
         lastname: "",
         username: "",
-        // password: "",
         roles: [],
       });
-  }, [user, reset]);
+  }, [userData]);
 
-  const onSubmit = (data) => mutation.mutate(data);
+  const onSubmit = (data) =>
+    mutation.mutate(userData ? { ...data, id: userData?.data.id } : data);
 
   return (
-    <Dialog open={show} onClose={handleClose}>
+    <Dialog open={true} onClose={onClose}>
       <form>
-        <DialogTitle>{user ? "ویرایش" : "ایجاد"} کاربر</DialogTitle>
+        <DialogTitle>{userData?.data ? "ویرایش" : "ایجاد"} کاربر</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
             margin="dense"
             label="نام"
             fullWidth
-            defaultValue={user ? user.firstname : ""}
+            defaultValue={userData?.data ? userData?.data.firstname : ""}
             inputProps={{ ...register("firstname", { required: true }) }}
             helperText={errors.firstname ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.firstname)}
@@ -71,7 +76,7 @@ export const UserForm = ({ show, handleClose, user }) => {
             margin="dense"
             label="نام خانوادگی"
             fullWidth
-            defaultValue={user ? user.lastname : ""}
+            defaultValue={userData?.data ? userData?.data.lastname : ""}
             inputProps={{ ...register("lastname", { required: true }) }}
             helperText={errors.lastname ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.lastname)}
@@ -80,22 +85,21 @@ export const UserForm = ({ show, handleClose, user }) => {
             margin="dense"
             label="نام کاربری"
             fullWidth
-            defaultValue={user ? user.username : ""}
+            defaultValue={userData?.data ? userData?.data.username : ""}
             inputProps={{ ...register("username", { required: true }) }}
             helperText={errors.username ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.username)}
           />
-          {/* <TextField
+          <TextField
             margin="dense"
             label="کلمه عبور"
             type="password"
             fullWidth
-            defaultValue={user ? user.password : ""}
+            defaultValue={userData?.data ? userData?.data.password : ""}
             inputProps={{ ...register("password", { required: true }) }}
             helperText={errors.password ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.password)}
-          /> */}
-
+          />
           <Controller
             control={control}
             name="roles"
@@ -108,20 +112,20 @@ export const UserForm = ({ show, handleClose, user }) => {
                   value={value ? value : []}
                   input={<OutlinedInput label="نقش ها" />}
                   renderValue={(selected) =>
-                    data?.data
-                      .filter((i) => selected.includes(i.key))
+                    listRoles?.data
+                      .filter((i) => selected.includes(i.id))
                       .map((i) => i.name)
                       .join(" | ")
                   }
                   onChange={onChange}
                 >
-                  {data?.data.map((role) => (
-                    <MenuItem key={role.key} value={role.key}>
+                  {listRoles?.data.map((role) => (
+                    <MenuItem key={role.key} value={role.id}>
                       <ListItemText primary={role.name} />
                     </MenuItem>
                   ))}
                 </Select>
-                { (error) ?<FormHelperText>این فیلد الزامی است</FormHelperText> : null}
+                {(error) ? <FormHelperText>این فیلد الزامی است</FormHelperText> : null}
               </FormControl>
             )}
           />
@@ -129,7 +133,7 @@ export const UserForm = ({ show, handleClose, user }) => {
         <DialogActions>
           <Button
             onClick={() => {
-              handleClose();
+              onClose();
               reset();
             }}
           >

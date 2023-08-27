@@ -7,20 +7,19 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
-  IconButton,
   InputLabel,
   Link,
   ListItemText,
   MenuItem,
   OutlinedInput,
   Select,
-  TextField,
+  TextField
 } from "@mui/material";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { api } from "api";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { QueryClient, useMutation, useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 export const DocumentForm = ({ onClose, documentId, refetch }) => {
   const { data: listRoles } = useQuery("roles", api.role.list);
@@ -170,7 +169,9 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
             margin="dense"
             fullWidth
             onChange={handleFileChange}
-            error={emptyFile}
+            error={Boolean(errors.file)}
+            helperText={errors.file ? "این فیلد الزامی است" : undefined}
+            inputProps={{ ...register("file", { required: true }) }}
             dir="ltr"
           />
           {documentData?.data ? (

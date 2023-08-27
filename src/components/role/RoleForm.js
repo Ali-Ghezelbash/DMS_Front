@@ -11,10 +11,16 @@ import {
 import { api } from "api";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQueryClient } from "react-query";
+import { useMutation, useQuery, useQueryClient } from "react-query";
 
-export const RoleForm = ({ show, handleClose, role }) => {
-  const queryClient = useQueryClient();
+export const RoleForm = ({ onClose, roleId, refetch }) => {
+
+  const { data: roleData } = useQuery(
+    "GET_ROLE_ITEM",
+    () => api.role.getItem(roleId),
+  );
+  console.log("s ", roleData)
+
 
   const {
     register,
@@ -23,28 +29,28 @@ export const RoleForm = ({ show, handleClose, role }) => {
     getValues,
     control,
     reset,
-  } = useForm(role);
+  } = useForm(roleData?.data);
 
   useEffect(() => {
-    if (role) reset(role);
-    else reset({ name: "", key: "", isAdmin: false });
-  }, [role, reset]);
+    if (roleData?.data) reset(roleData?.data);
+    else reset({ name: "", isAdmin: false });
+  }, [roleData?.data]);
 
-  const mutation = useMutation(role ? api.role.update : api.role.create, {
+  const mutation = useMutation(roleData?.data ? api.role.update : api.role.create, {
     onSuccess: () => {
-      handleClose();
-      queryClient.invalidateQueries("roles");
+      onClose();
       reset();
+      refetch();
     },
   });
 
   const onSubmit = (data) =>
-    mutation.mutate(role ? { ...data, id: role.id } : data);
+    mutation.mutate(roleData?.data ? { ...data, id: roleData?.data.id } : data);
 
   return (
-    <Dialog open={show} onClose={handleClose}>
+    <Dialog open={true} onClose={onClose}>
       <form>
-        <DialogTitle>{role ? "ویرایش" : "ایجاد"} نقش</DialogTitle>
+        <DialogTitle>{roleId ? "ویرایش" : "ایجاد"} نقش</DialogTitle>
         <DialogContent>
           <TextField
             autoFocus
@@ -54,15 +60,6 @@ export const RoleForm = ({ show, handleClose, role }) => {
             inputProps={{ ...register("name", { required: true }) }}
             helperText={errors.name ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.name)}
-          />
-
-          <TextField
-            margin="dense"
-            label="کد"
-            fullWidth
-            inputProps={{ ...register("key", { required: true }) }}
-            helperText={errors.key ? "این فیلد الزامی است" : undefined}
-            error={Boolean(errors.key)}
           />
 
           <Controller
@@ -85,7 +82,8 @@ export const RoleForm = ({ show, handleClose, role }) => {
         <DialogActions>
           <Button
             onClick={() => {
-              handleClose();
+              onClose();
+              reset();
             }}
           >
             لغو

@@ -14,8 +14,8 @@ import {
   Typography,
 } from "@mui/material";
 import { api } from "api";
-import { UserForm, UserFormChangePassword } from "components";
-import React from "react";
+import { DeleteConfirm, UserForm, UserFormChangePassword } from "components";
+import React, { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import PasswordIcon from '@mui/icons-material/Password';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -25,51 +25,22 @@ export default function UsersPage() {
   const { data, isLoading, refetch } = useQuery("users", api.user.list);
   const { mutate } = useMutation({ mutationFn: api.user.delete });
 
-  const [open, setOpen] = React.useState(false);
+  const [show, setShow] = useState(false);
+  const [edit, setEdit] = useState();
   const [openPassword, setOpenPassword] = React.useState(false);
-  const [user, setUser] = React.useState();
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const headers = [
+    "نام",
+    "نام خانوادگی",
+    "نام کاربری",
+    "تاریخ ایجاد",
+    "عملیات",
+  ];
 
-  const handleCloseDelete = () => {
-    setAnchorEl(null);
-  };
-
-  const handleConfirmDelete = () => {
-    setAnchorEl(null);
-    mutate(user.id, { onSuccess: refetch });
-  };
-
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  const handleClose = () => {
-    setUser(undefined);
-    setOpen(false);
-  };
-
-  const handleClosePassword = () => {
-    setUser(undefined);
-    setOpenPassword(false);
-  };
-
-  const handelEdit = (user) => {
-    setUser(user);
-    setOpen(true);
-  };
-
-  const handelEditPassword = (user) => {
-    setUser(user);
-    setOpenPassword(true);
-  };
-
-  const handelDelete = (e, user) => {
-    setUser(user);
-    setAnchorEl(e.currentTarget);
+  const handleConfirmDelete = (userId) => {
+    mutate(userId, { onSuccess: refetch });
   };
 
   if (isLoading) return <div>loading</div>;
-
   return (
     <Stack gap={2}>
       <Stack
@@ -79,7 +50,7 @@ export default function UsersPage() {
         sx={{ backgroundColor: "#f5f5f5", p: 2 }}
       >
         <Typography variant="h5">لیست کاربران</Typography>
-        <Button variant="contained" onClick={handleClickOpen}>
+        <Button variant="contained" onClick={() => setShow(true)}>
           ایجاد کاربر
         </Button>
       </Stack>
@@ -88,11 +59,11 @@ export default function UsersPage() {
           <Table sx={{ minWidth: 650 }}>
             <TableHead>
               <TableRow>
-                <TableCell align="center">نام</TableCell>
-                <TableCell align="center">نام خانوادگی</TableCell>
-                <TableCell align="center">نام کاربری</TableCell>
-                <TableCell align="center">تاریخ ایجاد</TableCell>
-                <TableCell align="center">عملیات</TableCell>
+                {headers.map((item) => (
+                  <TableCell key={item} align="center">
+                    {item}
+                  </TableCell>
+                ))}
               </TableRow>
             </TableHead>
             <TableBody>
@@ -108,27 +79,22 @@ export default function UsersPage() {
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
                   <TableCell align="center">
-                  <IconButton
+                    <IconButton
                       color="primary"
                       size="small"
-                      onClick={() => handelEdit(row)}
+                      onClick={() => setEdit(row.id)}
                     >
                       <ModeEditOutlineIcon fontSize="small" />
                     </IconButton>
                     <IconButton
                       color="primary"
                       size="small"
-                      onClick={() => handelEditPassword(row)}
+                      // onClick={() => handelEditPassword(row)}
                     >
                       <PasswordIcon fontSize="small" />
                     </IconButton>
-                    <IconButton
-                      color="primary"
-                      size="small"
-                      onClick={(e) => handelDelete(e, row)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton>
+                    <DeleteConfirm onDelete={() => { handleConfirmDelete(row.id) }} />
+
                   </TableCell>
                 </TableRow>
               ))}
@@ -136,36 +102,16 @@ export default function UsersPage() {
           </Table>
         </TableContainer>
       </Box>
-      <UserForm
-        show={open}
-        handleClose={handleClose}
-        isCreate={true}
-        user={user}
-      />
-      <UserFormChangePassword
-        show={openPassword}
-        user={user}
-        handleClose={handleClosePassword}
-      />
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleCloseDelete}
-        anchorOrigin={{
-          vertical: "bottom",
-          horizontal: "center",
-        }}
-        transformOrigin={{
-          vertical: "top",
-          horizontal: "center",
-        }}
-        PaperProps={{ sx: { paddingInline: 1.5 } }}
-      >
-        <Button variant="contained" color="error" onClick={handleConfirmDelete}>
-          تایید
-        </Button>
-        <Button onClick={handleCloseDelete}>لغو</Button>
-      </Menu>
+      {(show || edit) && (
+        <UserForm
+          onClose={() => {
+            setShow(false);
+            setEdit(undefined);
+          }}
+          refetch={refetch}
+          categoryId={edit}
+        />
+      )}
     </Stack>
   );
 }

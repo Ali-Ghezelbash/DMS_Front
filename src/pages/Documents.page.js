@@ -15,10 +15,9 @@ import {
 import { api } from "api";
 import { DeleteConfirm, DocumentForm } from "components";
 import { useState } from "react";
-import { useQuery } from "react-query";
+import { useMutation, useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
 
-import DeleteIcon from "@mui/icons-material/Delete";
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
 import ShareIcon from "@mui/icons-material/Share";
 import VisibilityIcon from "@mui/icons-material/Visibility";
@@ -29,6 +28,8 @@ export default function DocumentsPage() {
   const { data, isLoading, refetch } = useQuery(["document"], () =>
     api.document.list()
   );
+  const { mutate } = useMutation({ mutationFn: api.document.delete });
+
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState();
   const headers = [
@@ -37,11 +38,14 @@ export default function DocumentsPage() {
     "دسته بندی",
     "ایجاد کننده",
     "تاریخ ایجاد",
-    "نسخه",
     "نظرات",
     "فایل پیوست",
     "عملیات",
   ];
+
+  const handleConfirmDelete = (documentId) => {
+    mutate(documentId, { onSuccess: refetch });
+  };
 
   if (isLoading) return <div>loading</div>;
   return (
@@ -53,7 +57,7 @@ export default function DocumentsPage() {
         sx={{ backgroundColor: "#f5f5f5", p: 2 }}
       >
         <Typography variant="h5">لیست مستندات</Typography>
-        <Button onClick={() => setShow(true)}>افزودن</Button>
+        <Button variant="contained" onClick={() => setShow(true)}>افزودن</Button>
       </Stack>
       <Box sx={{ p: 3 }}>
         <TableContainer component={Paper}>
@@ -80,7 +84,6 @@ export default function DocumentsPage() {
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
                   </TableCell>
-                  <TableCell align="center">{row.version}</TableCell>
                   <TableCell align="center">مشاهده</TableCell>
                   <TableCell align="center">
                     <a
@@ -115,14 +118,7 @@ export default function DocumentsPage() {
                     >
                       <ShareIcon fontSize="small" />
                     </IconButton>
-                    {/* <IconButton
-                      color="primary"
-                      size="small"
-                      // onClick={() => setEdit(row.id)}
-                    >
-                      <DeleteIcon fontSize="small" />
-                    </IconButton> */}
-                    <DeleteConfirm onDelete={() => {}} />
+                    <DeleteConfirm onDelete={() => {handleConfirmDelete(row.id)}} />
                   </TableCell>
                 </TableRow>
               ))}
