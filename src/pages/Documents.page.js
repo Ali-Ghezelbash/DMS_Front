@@ -13,7 +13,7 @@ import {
   Typography,
 } from "@mui/material";
 import { api } from "api";
-import { DeleteConfirm, DocumentForm } from "components";
+import { DeleteConfirm, DocumentForm, ShareDocumentForm } from "components";
 import { useState } from "react";
 import { useMutation, useQuery } from "react-query";
 import { useNavigate } from "react-router-dom";
@@ -32,6 +32,7 @@ export default function DocumentsPage() {
 
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState();
+  const [share, setShare] = useState();
   const headers = [
     "عنوان",
     "توضیحات",
@@ -79,7 +80,7 @@ export default function DocumentsPage() {
                 >
                   <TableCell align="center">{row.title}</TableCell>
                   <TableCell align="center">{row.description}</TableCell>
-                  <TableCell align="center">{row.category.name}</TableCell>
+                  <TableCell align="center">{row.category?.name}</TableCell>
                   <TableCell align="center">{row.user?.username}</TableCell>
                   <TableCell align="center">
                     {new Date(row.createdAt).toLocaleDateString("fa-IR")}
@@ -114,11 +115,11 @@ export default function DocumentsPage() {
                     <IconButton
                       color="primary"
                       size="small"
-                      // onClick={() => setEdit(row.id)}
+                    onClick={() => setShare(row.id)}
                     >
                       <ShareIcon fontSize="small" />
                     </IconButton>
-                    <DeleteConfirm onDelete={() => {handleConfirmDelete(row.id)}} />
+                    <DeleteConfirm onDelete={() => { handleConfirmDelete(row.id) }} />
                   </TableCell>
                 </TableRow>
               ))}
@@ -134,6 +135,15 @@ export default function DocumentsPage() {
           }}
           refetch={refetch}
           documentId={edit}
+        />
+      )}
+      {share &&
+        (<ShareDocumentForm 
+        onClose={() => {
+          setShare(undefined);
+        }}
+        refetch={refetch}
+        documentId={share}
         />
       )}
     </Stack>

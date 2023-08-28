@@ -7,6 +7,7 @@ import {
   DialogTitle,
   FormControl,
   FormHelperText,
+  IconButton,
   InputLabel,
   Link,
   ListItemText,
@@ -15,6 +16,7 @@ import {
   Select,
   TextField
 } from "@mui/material";
+import CloseIcon from "@mui/icons-material/Close";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import { api } from "api";
 import { useEffect, useState } from "react";
@@ -31,13 +33,16 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
   );
 
   const [file, setFile] = useState(null);
-  const [emptyFile, setEmptyFile] = useState(false);
+  const [emptyFile, setEmptyFile] = useState(documentId ? false : true);
   const [newVersion, setNewVersion] = useState(false);
+  const [oldVersion, setOldVersion] = useState(documentId ? true : false);
+
 
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
       setEmptyFile(false);
+      setOldVersion(false);
     }
   };
 
@@ -47,22 +52,33 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
     control,
     formState: { errors },
     reset,
-  } = useForm();
+  } = useForm(documentData?.data);
 
   useEffect(() => {
-    if (documentData?.data)
+    if (documentId)
       reset({
-        ...documentData.data,
-        roles: documentData.data.document_roles.map((i) => i.role.id),
-      });
-  }, [documentData]);
+        ...documentData?.data,
+        roles: documentData?.data.document_roles.map((i) => i.role.id),
+      })
+    else reset({
+      title: "",
+      description: "",
+      roles: [],
+      categoryId: "",
+    });
+  }, [documentId]);
 
   const mutation = useMutation(
     !documentId || newVersion ? api.document.create : api.document.update,
     {
       onSuccess: () => {
         onClose();
-        reset();
+        reset({
+          title: "",
+          description: "",
+          roles: [],
+          categoryId: "",
+        });
         refetch();
       },
     }
@@ -137,7 +153,6 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
               </FormControl>
             )}
           />
-
           <Controller
             control={control}
             name="categoryId"
@@ -156,9 +171,9 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
                     </MenuItem>
                   ))}
                 </Select>
-                {error ? (
+                {error && (
                   <FormHelperText>این فیلد الزامی است</FormHelperText>
-                ) : null}
+                )}
               </FormControl>
             )}
           />
@@ -169,12 +184,11 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
             margin="dense"
             fullWidth
             onChange={handleFileChange}
-            error={Boolean(errors.file)}
-            helperText={errors.file ? "این فیلد الزامی است" : undefined}
-            inputProps={{ ...register("file", { required: true }) }}
+            error={emptyFile}
+            helperText={emptyFile ? "این فیلد الزامی است" : undefined}
             dir="ltr"
           />
-          {documentData?.data ? (
+          {oldVersion && (
             <div>
               <Link
                 href={
@@ -184,12 +198,9 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
               >
                 فایل پیوست
               </Link>
-              {/* <IconButton size="small" onClick={handleDeleteOldFile}>
-                <CloseIcon fontSize="16px" />
-              </IconButton> */}
             </div>
-          ) : null}
-          {documentData?.data ? (
+          )}
+          {documentId && (
             <FormControlLabel
               control={
                 <Checkbox
@@ -200,7 +211,7 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
               }
               label="نسخه جدید"
             />
-          ) : null}
+          )}
         </DialogContent>
         <DialogActions>
           <Button

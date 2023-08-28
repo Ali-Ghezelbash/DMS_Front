@@ -4,21 +4,13 @@ import {
   DialogActions,
   DialogContent,
   DialogTitle,
-  FormControl,
-  InputLabel,
-  ListItemText,
-  MenuItem,
-  OutlinedInput,
-  Select,
+  Stack,
   TextField,
+  Typography
 } from "@mui/material";
-import { api } from "api";
-import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useForm } from "react-hook-form";
 
-export const ShareDocumentForm = () => {
-  const queryClient = useQueryClient();
+export const ShareDocumentForm = ({ onClose, documentId, refetch }) => {
 
   const {
     register,
@@ -29,28 +21,36 @@ export const ShareDocumentForm = () => {
   } = useForm(document);
 
   return (
-    <Dialog open={() => {}} onClose={() => {}}>
+    <Dialog open={true} onClose={onClose}>
       <form>
         <DialogTitle>اشتراک گذاری</DialogTitle>
         <DialogContent>
-          <TextField
-            margin="dense"
-            label="مدت زمان اعتبار"
-            fullWidth
-            defaultValue={1}
-            helperText={errors.description ? "این فیلد الزامی است" : undefined}
-            error={Boolean(errors.description)}
-          />
+          <Stack
+            direction="row"
+            spacing={2}
+            alignItems="baseline"
+          >
+            <TextField
+              margin="dense"
+              label="مدت زمان اعتبار"
+              fullWidth
+              defaultValue={1}
+              helperText={errors.description ? "این فیلد الزامی است" : undefined}
+              error={Boolean(errors.description)}
+            />
+            <Typography>ساعت</Typography>
+          </Stack>
         </DialogContent>
         <DialogActions>
           <Button
             onClick={() => {
               reset();
+              onClose()
             }}
           >
             لغو
           </Button>
-          <Button onClick={() => {}}>ثبت</Button>
+          <Button onClick={() => { onClose() }}>ایجاد لینک</Button>
         </DialogActions>
       </form>
     </Dialog>

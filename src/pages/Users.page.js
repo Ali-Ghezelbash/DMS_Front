@@ -2,7 +2,6 @@ import {
   Box,
   Button,
   IconButton,
-  Menu,
   Paper,
   Stack,
   Table,
@@ -11,15 +10,14 @@ import {
   TableContainer,
   TableHead,
   TableRow,
-  Typography,
+  Typography
 } from "@mui/material";
 import { api } from "api";
 import { DeleteConfirm, UserForm, UserFormChangePassword } from "components";
 import React, { useState } from "react";
 import { useMutation, useQuery } from "react-query";
-import PasswordIcon from '@mui/icons-material/Password';
-import DeleteIcon from '@mui/icons-material/Delete';
 import ModeEditOutlineIcon from "@mui/icons-material/ModeEditOutline";
+import PasswordIcon from '@mui/icons-material/Password';
 
 export default function UsersPage() {
   const { data, isLoading, refetch } = useQuery("users", api.user.list);
@@ -27,7 +25,7 @@ export default function UsersPage() {
 
   const [show, setShow] = useState(false);
   const [edit, setEdit] = useState();
-  const [openPassword, setOpenPassword] = React.useState(false);
+  const [password, setPassword] = useState();
   const headers = [
     "نام",
     "نام خانوادگی",
@@ -89,7 +87,7 @@ export default function UsersPage() {
                     <IconButton
                       color="primary"
                       size="small"
-                      // onClick={() => handelEditPassword(row)}
+                      onClick={() => setPassword(row.id)}
                     >
                       <PasswordIcon fontSize="small" />
                     </IconButton>
@@ -109,9 +107,16 @@ export default function UsersPage() {
             setEdit(undefined);
           }}
           refetch={refetch}
-          categoryId={edit}
+          userId={edit}
         />
       )}
+      {password && <UserFormChangePassword
+        onClose={() => {
+          setPassword(undefined);
+        }}
+        refetch={refetch}
+        userId={password}
+      />}
     </Stack>
   );
 }

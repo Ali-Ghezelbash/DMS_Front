@@ -5,27 +5,26 @@ import {
   DialogContent,
   DialogTitle,
   FormControl,
+  FormHelperText,
   InputLabel,
   ListItemText,
   MenuItem,
   OutlinedInput,
   Select,
-  TextField,
-  FormHelperText
+  TextField
 } from "@mui/material";
 import { api } from "api";
 import { useEffect } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { useMutation, useQuery, useQueryClient } from "react-query";
+import { useMutation, useQuery } from "react-query";
 
 export const UserForm = ({ onClose, userId, refetch }) => {
   const { data: listRoles } = useQuery("roles", api.role.list);
-
   const { data: userData } = useQuery(
     "GET_USER_ITEM",
     () => api.user.getItem(userId),
   );
-  console.log(userData?.data)
+
   const {
     register,
     handleSubmit,
@@ -34,16 +33,9 @@ export const UserForm = ({ onClose, userId, refetch }) => {
     reset,
   } = useForm(userData?.data);
 
-  const mutation = useMutation(userData?.data ? api.user.update : api.user.create, {
-    onSuccess: (res) => {
-      onClose();
-      reset();
-      refetch();
-    },
-  });
-
   useEffect(() => {
-    if (userData?.data) reset(userData?.data);
+    if (userData?.data) reset({...userData?.data, roles: userData.data.user_roles.map((i) => i.role.id),
+    });
     else
       reset({
         firstname: "",
@@ -52,6 +44,14 @@ export const UserForm = ({ onClose, userId, refetch }) => {
         roles: [],
       });
   }, [userData]);
+
+  const mutation = useMutation(userData?.data ? api.user.update : api.user.create, {
+    onSuccess: (res) => {
+      onClose();
+      reset();
+      refetch();
+    },
+  });
 
   const onSubmit = (data) =>
     mutation.mutate(userData ? { ...data, id: userData?.data.id } : data);
@@ -90,7 +90,7 @@ export const UserForm = ({ onClose, userId, refetch }) => {
             helperText={errors.username ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.username)}
           />
-          <TextField
+          { !userId && <TextField
             margin="dense"
             label="کلمه عبور"
             type="password"
@@ -99,7 +99,7 @@ export const UserForm = ({ onClose, userId, refetch }) => {
             inputProps={{ ...register("password", { required: true }) }}
             helperText={errors.password ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.password)}
-          />
+          />}
           <Controller
             control={control}
             name="roles"
@@ -120,7 +120,7 @@ export const UserForm = ({ onClose, userId, refetch }) => {
                   onChange={onChange}
                 >
                   {listRoles?.data.map((role) => (
-                    <MenuItem key={role.key} value={role.id}>
+                    <MenuItem key={role.id} value={role.id}>
                       <ListItemText primary={role.name} />
                     </MenuItem>
                   ))}

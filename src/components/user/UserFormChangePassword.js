@@ -11,8 +11,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { useMutation, useQuery, useQueryClient } from "react-query";
 
-export const UserFormChangePassword = ({ show, handleClose, user }) => {
-  const queryClient = useQueryClient();
+export const UserFormChangePassword = ({ onClose, userId, refetch }) => {
   const {
     register,
     handleSubmit,
@@ -23,25 +22,24 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
 
   const mutation = useMutation(api.user.changePassword, {
     onSuccess: (res) => {
-      handleClose();
-      queryClient.invalidateQueries("users");
+      onClose();
       reset();
+      refetch();
     },
   });
 
   useEffect(() => {
     reset({
       password: "",
-      confirmPassword: "",
     });
-  }, [user, reset]);
+  }, [userId]);
 
   const onSubmit = (data) => {
-    const res = { password: data.password, id: user.id };
+    const res = { password: data.password, id: userId };
     mutation.mutate(res);
   };
   return (
-    <Dialog open={show} onClose={handleClose}>
+    <Dialog open={true} onClose={onClose}>
       <form>
         <DialogTitle>تغییر رمزعبور</DialogTitle>
         <DialogContent>
@@ -58,7 +56,7 @@ export const UserFormChangePassword = ({ show, handleClose, user }) => {
         <DialogActions>
           <Button
             onClick={() => {
-              handleClose();
+              onClose();
               reset();
             }}
           >
