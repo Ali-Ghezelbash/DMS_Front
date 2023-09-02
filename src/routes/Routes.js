@@ -36,7 +36,7 @@ export const Routes = () => {
             <Route path="/users" element={<UsersPage />} />
             <Route path="/roles" element={<RolesPage />} />
             <Route path="/documents" element={<DocumentsPage />} />
-            <Route path="/document" element={<DocumentPage />} />
+            <Route path="/documents/:id" element={<DocumentPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
           </Route>
         </Route>

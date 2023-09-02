@@ -58,7 +58,9 @@ export default function DocumentsPage() {
         sx={{ backgroundColor: "#f5f5f5", p: 2 }}
       >
         <Typography variant="h5">لیست مستندات</Typography>
-        <Button variant="contained" onClick={() => setShow(true)}>افزودن</Button>
+        <Button variant="contained" onClick={() => setShow(true)}>
+          افزودن
+        </Button>
       </Stack>
       <Box sx={{ p: 3 }}>
         <TableContainer component={Paper}>
@@ -100,7 +102,7 @@ export default function DocumentsPage() {
                       color="primary"
                       size="small"
                       onClick={() => {
-                        navigate("/document", { state: row.id });
+                        navigate("/documents/" + row.id);
                       }}
                     >
                       <VisibilityIcon fontSize="small" />
@@ -115,11 +117,15 @@ export default function DocumentsPage() {
                     <IconButton
                       color="primary"
                       size="small"
-                    onClick={() => setShare(row.id)}
+                      onClick={() => setShare(row.id)}
                     >
                       <ShareIcon fontSize="small" />
                     </IconButton>
-                    <DeleteConfirm onDelete={() => { handleConfirmDelete(row.id) }} />
+                    <DeleteConfirm
+                      onDelete={() => {
+                        handleConfirmDelete(row.id);
+                      }}
+                    />
                   </TableCell>
                 </TableRow>
               ))}
@@ -137,13 +143,13 @@ export default function DocumentsPage() {
           documentId={edit}
         />
       )}
-      {share &&
-        (<ShareDocumentForm 
-        onClose={() => {
-          setShare(undefined);
-        }}
-        refetch={refetch}
-        documentId={share}
+      {share && (
+        <ShareDocumentForm
+          onClose={() => {
+            setShare(undefined);
+          }}
+          refetch={refetch}
+          documentId={share}
         />
       )}
     </Stack>

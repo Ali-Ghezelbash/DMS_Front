@@ -23,15 +23,20 @@ import { api } from "api";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "react-query";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { tokenManager } from "utils";
 
 export default function DocumentPage() {
   const navigate = useNavigate();
+  let { id } = useParams();
+
+  console.log({ id });
   const location = useLocation();
   const documentId = location.state;
 
-  const { data: comments, refetch } = useQuery("comment", () => api.comment.list(documentId));
+  const { data: comments, refetch } = useQuery("comment", () =>
+    api.comment.list(documentId)
+  );
   const { data: listRoles } = useQuery("roles", api.role.list);
   const { data: listCategories } = useQuery("categories", api.category.list);
   const { data: documentData } = useQuery(
@@ -39,7 +44,7 @@ export default function DocumentPage() {
     () => api.document.getItem(documentId),
     { enabled: !!documentId && !!listCategories && !!listRoles }
   );
-  
+
   const [file, setFile] = useState();
   const [emptyFile, setEmptyFile] = useState(false);
   const [newVersion, setNewVersion] = useState(false);
@@ -55,8 +60,8 @@ export default function DocumentPage() {
 
   const handleDeleteComment = (commentId) => {
     api.comment.delete(commentId);
-    refetch()
-  }
+    refetch();
+  };
 
   const {
     register,
@@ -71,13 +76,14 @@ export default function DocumentPage() {
       reset({
         ...documentData.data,
         roles: documentData.data.document_roles.map((i) => i.role.id),
-      })
-    else reset({
-      title: "",
-      description: "",
-      roles: [],
-      categoryId: "",
-    });
+      });
+    else
+      reset({
+        title: "",
+        description: "",
+        roles: [],
+        categoryId: "",
+      });
   }, [documentId]);
 
   const mutation = useMutation(
@@ -139,131 +145,13 @@ export default function DocumentPage() {
           </div>
         </Stack>
         <Box sx={{ p: 3 }}>
-          <TextField
-            margin="dense"
-            label="عنوان"
-            fullWidth
-            helperText={errors.title ? "این فیلد الزامی است" : undefined}
-            error={Boolean(errors.title)}
-            {...register("title", { required: true })}
-          />
-          <TextField
-            margin="dense"
-            label="توضیحات"
-            fullWidth
-            inputProps={{ ...register("description", { required: true }) }}
-            helperText={errors.description ? "این فیلد الزامی است" : undefined}
-            error={Boolean(errors.description)}
-          />
-          <Controller
-            control={control}
-            name="roles"
-            rules={{ required: true }}
-            render={({ field: { onChange, value }, fieldState: { error } }) => (
-              <FormControl fullWidth margin="dense" error={error}>
-                <InputLabel>دسترسی به نقش های</InputLabel>
-                <Select
-                  multiple
-                  required
-                  value={value ? value : []}
-                  input={<OutlinedInput label="دسترسی به نقش های" />}
-                  renderValue={(selected) =>
-                    listRoles?.data
-                      .filter((i) => selected.includes(i.id))
-                      .map((i) => i.name)
-                      .join(" | ")
-                  }
-                  onChange={onChange}
-                >
-                  {listRoles?.data.map((role) => (
-                    <MenuItem key={role.id} value={role.id}>
-                      <ListItemText primary={role.name} />
-                    </MenuItem>
-                  ))}
-                </Select>
-                {error ? (
-                  <FormHelperText>این فیلد الزامی است</FormHelperText>
-                ) : null}
-              </FormControl>
-            )}
-          />
-          <Controller
-            control={control}
-            name="categoryId"
-            rules={{ required: true }}
-            render={({ field: { onChange, value }, fieldState: { error } }) => (
-              <FormControl fullWidth margin="dense" error={error}>
-                <InputLabel>دسته‌بندی</InputLabel>
-                <Select
-                  value={value}
-                  input={<OutlinedInput label="دسته‌بندی" />}
-                  onChange={onChange}
-                >
-                  {listCategories?.data.map((category) => (
-                    <MenuItem key={category.id} value={category.id}>
-                      <ListItemText primary={category.name} />
-                    </MenuItem>
-                  ))}
-                </Select>
-                {error && (
-                  <FormHelperText>این فیلد الزامی است</FormHelperText>
-                )}
-              </FormControl>
-            )}
-          />
-          {/* <Controller
-            control={control}
-            name="categoryId"
-            render={({ field: { onChange, value } }) => (
-              <FormControl fullWidth margin="dense">
-                <InputLabel>نسخه</InputLabel>
-                <Select
-                  value={value}
-                  input={<OutlinedInput label="نسخه" />}
-                  onChange={onChange}
-                >
-                  {listCategories?.data.map((category) => (
-                    <MenuItem key={category.id} value={category.id}>
-                      <ListItemText primary={category.name} />
-                    </MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-            )}
-          /> */}
-          <TextField
-            label="فایل پیوست"
-            name="upload-photo"
-            type="file"
-            margin="dense"
-            fullWidth
-            onChange={handleFileChange}
-            error={emptyFile}
-            helperText={emptyFile ? "این فیلد الزامی است" : undefined}
-            dir="ltr"
-          />
-          {oldVersion && (
-            <div>
-              <Link
-                href={
-                  "http://localhost:3000/uploads/" + documentData?.data.file
-                }
-                target="_blank"
-              >
-                فایل پیوست
-              </Link>
-            </div>
-          )}
-          <FormControlLabel
-            control={
-              <Checkbox
-                size="small"
-                checked={newVersion}
-                onChange={() => setNewVersion(!newVersion)}
-              />
-            }
-            label="نسخه جدید"
-          />
+          <Typography>عنوان : {documentData?.title}</Typography>
+
+          <Typography>توضیحات :</Typography>
+          <Typography>دسترسی به نقش های :</Typography>
+          <Typography>دسته‌بندی :</Typography>
+          <Typography>نسخه :</Typography>
+          <Typography>فایل پیوست :</Typography>
           <Typography sx={{ pt: 2 }} variant="h6">
             نظرات
           </Typography>
@@ -290,11 +178,11 @@ export default function DocumentPage() {
                     primary={
                       <>
                         {tokenManager.isAdmin ||
-                          tokenManager.userIdToken() === item.userId ? (
+                        tokenManager.userIdToken() === item.userId ? (
                           <IconButton
                             color="primary"
                             size="small"
-                          onClick={() => handleDeleteComment(item.id)}
+                            onClick={() => handleDeleteComment(item.id)}
                           >
                             <DeleteIcon sx={{ fontSize: 16 }} />
                           </IconButton>
