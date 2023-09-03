@@ -14,7 +14,7 @@ import {
   MenuItem,
   OutlinedInput,
   Select,
-  TextField
+  TextField,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import FormControlLabel from "@mui/material/FormControlLabel";
@@ -54,18 +54,19 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
   } = useForm(documentData?.data);
 
   useEffect(() => {
-    if (documentId)
+    if (documentData)
       reset({
         ...documentData?.data,
         roles: documentData?.data.document_roles.map((i) => i.role.id),
-      })
-    else reset({
-      title: "",
-      description: "",
-      roles: [],
-      categoryId: "",
-    });
-  }, [documentId]);
+      });
+    else
+      reset({
+        title: "",
+        description: "",
+        roles: [],
+        categoryId: "",
+      });
+  }, [documentData]);
 
   const mutation = useMutation(
     !documentId || newVersion ? api.document.create : api.document.update,
@@ -171,9 +172,7 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
                     </MenuItem>
                   ))}
                 </Select>
-                {error && (
-                  <FormHelperText>این فیلد الزامی است</FormHelperText>
-                )}
+                {error && <FormHelperText>این فیلد الزامی است</FormHelperText>}
               </FormControl>
             )}
           />

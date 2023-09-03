@@ -1,30 +1,21 @@
-import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
   Button,
-  Checkbox,
   Divider,
-  FormControl,
-  FormControlLabel,
-  FormHelperText,
-  InputLabel,
   List,
   ListItem,
   ListItemText,
-  MenuItem,
-  OutlinedInput,
-  Select,
   Stack,
   TextField,
   Typography,
+  Link,
 } from "@mui/material";
-import IconButton from "@mui/material/IconButton";
 import { api } from "api";
 import { DeleteConfirm } from "components";
 import { useEffect, useState } from "react";
-import { Controller, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { useMutation, useQuery } from "react-query";
-import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { tokenManager } from "utils";
 
 export default function DocumentPage() {
@@ -42,7 +33,7 @@ export default function DocumentPage() {
     () => api.document.getItem(id),
     { enabled: !!id && !!listCategories && !!listRoles }
   );
-  console.log(documentData?.data)
+  console.log(documentData?.data);
 
   const [file, setFile] = useState();
   const [emptyFile, setEmptyFile] = useState(false);
@@ -58,8 +49,8 @@ export default function DocumentPage() {
     }
   };
 
-  const handleDeleteComment = (commentId) => {
-    api.comment.delete(commentId);
+  const handleDeleteComment = async (commentId) => {
+    await api.comment.delete(commentId);
     refetch();
   };
 
@@ -101,14 +92,11 @@ export default function DocumentPage() {
     }
   );
 
-  const mutationComment = useMutation(
-    api.comment.create,
-    {
-      onSuccess: () => {
-        setComment("")
-      },
-    }
-  );
+  const mutationComment = useMutation(api.comment.create, {
+    onSuccess: () => {
+      setComment("");
+    },
+  });
 
   const onSubmit = (data) => {
     const formData = new FormData();
@@ -154,22 +142,28 @@ export default function DocumentPage() {
           </div>
         </Stack>
         <Box sx={{ p: 3 }}>
-          <Typography sx={{ padding: 2 }}>عنوان : {documentData?.data.title}</Typography>
+          <Typography sx={{ padding: 2 }}>
+            عنوان : {documentData?.data.title}
+          </Typography>
           <Divider light />
-          <Typography sx={{ padding: 2 }}>توضیحات : {documentData?.data.description}</Typography>
+          <Typography sx={{ padding: 2 }}>
+            توضیحات : {documentData?.data.description}
+          </Typography>
           <Divider light />
-          <Typography sx={{ padding: 2 }}>دسته‌بندی : {documentData?.data.category.name}</Typography>
+          <Typography sx={{ padding: 2 }}>
+            دسته‌بندی : {documentData?.data.category.name}
+          </Typography>
           <Divider light />
           <Typography sx={{ padding: 2 }}>نسخه :</Typography>
           <Divider light />
-          <Typography sx={{ padding: 2 }}>فایل پیوست : <Link
-            href={
-              "http://localhost:3000/uploads/" + documentData?.data.file
-            }
-            target="_blank"
-          >
-            دانلود
-          </Link>
+          <Typography sx={{ padding: 2 }}>
+            فایل پیوست :{" "}
+            <Link
+              href={"http://localhost:3000/uploads/" + documentData?.data.file}
+              target="_blank"
+            >
+              دانلود
+            </Link>
           </Typography>
           <Divider light />
           <Typography sx={{ pt: 2 }} variant="h6">
@@ -188,11 +182,15 @@ export default function DocumentPage() {
               variant="contained"
               sx={{ width: 120, padding: 1, margin: 2, marginLeft: 1 }}
               onClick={() => {
-                mutationComment.mutate({ message: comment, userId: tokenManager.userIdToken(), documentId: id });
-                
-                refetch()
+                mutationComment.mutate({
+                  message: comment,
+                  userId: tokenManager.userIdToken(),
+                  documentId: id,
+                });
+
+                refetch();
               }}
-              disabled={(comment === "") ? true : false}
+              disabled={comment === "" ? true : false}
             >
               ثبت
             </Button>
@@ -207,8 +205,12 @@ export default function DocumentPage() {
                     primary={
                       <>
                         {tokenManager.isAdmin ||
-                          tokenManager.userIdToken() === item.userId ? (
-                          <DeleteConfirm onDelete={() => { handleDeleteComment(item.id) }} />
+                        tokenManager.userIdToken() === item.userId ? (
+                          <DeleteConfirm
+                            onDelete={() => {
+                              handleDeleteComment(item.id);
+                            }}
+                          />
                         ) : null}
                         <Typography variant="caption" sx={{ fontSize: "15px" }}>
                           {item.message}
