@@ -20,6 +20,7 @@ import {
 } from "@mui/material";
 import IconButton from "@mui/material/IconButton";
 import { api } from "api";
+import { DeleteConfirm } from "components";
 import { useEffect, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useMutation, useQuery } from "react-query";
@@ -29,26 +30,25 @@ import { tokenManager } from "utils";
 export default function DocumentPage() {
   const navigate = useNavigate();
   let { id } = useParams();
-
-  console.log({ id });
-  const location = useLocation();
-  const documentId = location.state;
+  console.log(id);
 
   const { data: comments, refetch } = useQuery("comment", () =>
-    api.comment.list(documentId)
+    api.comment.list(id)
   );
   const { data: listRoles } = useQuery("roles", api.role.list);
   const { data: listCategories } = useQuery("categories", api.category.list);
   const { data: documentData } = useQuery(
     "GET_DOCUMENT_ITEM",
-    () => api.document.getItem(documentId),
-    { enabled: !!documentId && !!listCategories && !!listRoles }
+    () => api.document.getItem(id),
+    { enabled: !!id && !!listCategories && !!listRoles }
   );
+  console.log(documentData?.data)
 
   const [file, setFile] = useState();
   const [emptyFile, setEmptyFile] = useState(false);
   const [newVersion, setNewVersion] = useState(false);
   const [oldVersion, setOldVersion] = useState(true);
+  const [comment, setComment] = useState();
 
   const handleFileChange = (e) => {
     if (e.target.files) {
@@ -84,7 +84,7 @@ export default function DocumentPage() {
         roles: [],
         categoryId: "",
       });
-  }, [documentId]);
+  }, [id]);
 
   const mutation = useMutation(
     newVersion ? api.document.create : api.document.update,
@@ -101,14 +101,23 @@ export default function DocumentPage() {
     }
   );
 
+  const mutationComment = useMutation(
+    api.comment.create,
+    {
+      onSuccess: () => {
+        setComment("")
+      },
+    }
+  );
+
   const onSubmit = (data) => {
     const formData = new FormData();
     formData.append("title", data.title);
     formData.append("description", data.description);
     formData.append("roles", JSON.stringify(data.roles));
     formData.append("categoryId", data.categoryId);
-    if (!newVersion) formData.append("id", documentId);
-    if (newVersion) formData.append("documentKey", documentId);
+    if (!newVersion) formData.append("id", id);
+    if (newVersion) formData.append("documentKey", id);
     if (file) {
       formData.append("file", file);
     } else if (!file) {
@@ -145,25 +154,45 @@ export default function DocumentPage() {
           </div>
         </Stack>
         <Box sx={{ p: 3 }}>
-          <Typography>عنوان : {documentData?.title}</Typography>
-
-          <Typography>توضیحات :</Typography>
-          <Typography>دسترسی به نقش های :</Typography>
-          <Typography>دسته‌بندی :</Typography>
-          <Typography>نسخه :</Typography>
-          <Typography>فایل پیوست :</Typography>
+          <Typography sx={{ padding: 2 }}>عنوان : {documentData?.data.title}</Typography>
+          <Divider light />
+          <Typography sx={{ padding: 2 }}>توضیحات : {documentData?.data.description}</Typography>
+          <Divider light />
+          <Typography sx={{ padding: 2 }}>دسته‌بندی : {documentData?.data.category.name}</Typography>
+          <Divider light />
+          <Typography sx={{ padding: 2 }}>نسخه :</Typography>
+          <Divider light />
+          <Typography sx={{ padding: 2 }}>فایل پیوست : <Link
+            href={
+              "http://localhost:3000/uploads/" + documentData?.data.file
+            }
+            target="_blank"
+          >
+            دانلود
+          </Link>
+          </Typography>
+          <Divider light />
           <Typography sx={{ pt: 2 }} variant="h6">
             نظرات
           </Typography>
           <div>
-            <TextField margin="dense" label="نظر خود را بنویسید" fullWidth />
+            <TextField
+              margin="dense"
+              label="نظر خود را بنویسید"
+              multiline
+              fullWidth
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+            />
             <Button
               variant="contained"
               sx={{ width: 120, padding: 1, margin: 2, marginLeft: 1 }}
               onClick={() => {
-                reset();
-                navigate("/documents");
+                mutationComment.mutate({ message: comment, userId: tokenManager.userIdToken(), documentId: id });
+                
+                refetch()
               }}
+              disabled={(comment === "") ? true : false}
             >
               ثبت
             </Button>
@@ -178,14 +207,8 @@ export default function DocumentPage() {
                     primary={
                       <>
                         {tokenManager.isAdmin ||
-                        tokenManager.userIdToken() === item.userId ? (
-                          <IconButton
-                            color="primary"
-                            size="small"
-                            onClick={() => handleDeleteComment(item.id)}
-                          >
-                            <DeleteIcon sx={{ fontSize: 16 }} />
-                          </IconButton>
+                          tokenManager.userIdToken() === item.userId ? (
+                          <DeleteConfirm onDelete={() => { handleDeleteComment(item.id) }} />
                         ) : null}
                         <Typography variant="caption" sx={{ fontSize: "15px" }}>
                           {item.message}

@@ -37,7 +37,6 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
   const [newVersion, setNewVersion] = useState(false);
   const [oldVersion, setOldVersion] = useState(documentId ? true : false);
 
-
   const handleFileChange = (e) => {
     if (e.target.files) {
       setFile(e.target.files[0]);
@@ -117,6 +116,7 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
             margin="dense"
             label="توضیحات"
             fullWidth
+            multiline
             inputProps={{ ...register("description", { required: true }) }}
             helperText={errors.description ? "این فیلد الزامی است" : undefined}
             error={Boolean(errors.description)}
