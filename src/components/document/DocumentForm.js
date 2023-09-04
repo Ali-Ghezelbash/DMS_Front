@@ -92,6 +92,8 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
     formData.append("categoryId", data.categoryId);
     if (documentId && !newVersion) formData.append("id", documentId);
     if (newVersion) formData.append("documentKey", documentId);
+    if (!documentId) formData.append("version", 1);
+    if (documentId && newVersion) formData.append("version", (documentData?.data.version)+1);
     if (file) {
       formData.append("file", file);
     } else if (!file) {
@@ -205,7 +207,13 @@ export const DocumentForm = ({ onClose, documentId, refetch }) => {
                 <Checkbox
                   size="small"
                   checked={newVersion}
-                  onChange={() => setNewVersion(!newVersion)}
+                  onChange={() => 
+                    {
+                      setNewVersion(!newVersion)
+                      setEmptyFile(true)
+                      setOldVersion(false)
+                    }
+                  }
                 />
               }
               label="نسخه جدید"

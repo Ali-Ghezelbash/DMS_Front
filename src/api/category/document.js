@@ -3,6 +3,7 @@ import request from "api/request";
 export const document = {
   list: (params) => request.get("/documents", { params }),
   getItem: (id) => request.get(`/documents/${id}`),
+  getversions: (id) => request.get(`/documents/versions/${id}`),
   create: (body) =>
     request.post("/documents", body, {
       headers: { "Content-Type": "multipart/form-data" },

@@ -70,7 +70,6 @@ export default function RolesPage() {
                   sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
                 >
                   <TableCell align="center">{row.name}</TableCell>
-                  <TableCell align="center">{row.key}</TableCell>
                   <TableCell align="center">
                     {row.isAdmin ? (
                       <Chip label="بله" color="success" />

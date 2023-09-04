@@ -9,6 +9,10 @@ import {
   TextField,
   Typography,
   Link,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 import { api } from "api";
 import { DeleteConfirm } from "components";
@@ -21,98 +25,39 @@ import { tokenManager } from "utils";
 export default function DocumentPage() {
   const navigate = useNavigate();
   let { id } = useParams();
-  console.log(id);
 
   const { data: comments, refetch } = useQuery("comment", () =>
     api.comment.list(id)
   );
-  const { data: listRoles } = useQuery("roles", api.role.list);
-  const { data: listCategories } = useQuery("categories", api.category.list);
   const { data: documentData } = useQuery(
     "GET_DOCUMENT_ITEM",
     () => api.document.getItem(id),
-    { enabled: !!id && !!listCategories && !!listRoles }
+    { enabled: !!id }
   );
-  console.log(documentData?.data);
+  const { data: documentVersions } = useQuery(
+    "GET_DOCUMENTVERSION_ITEM",
+    () => api.document.getversions(documentData?.data.documentKey),
+    { enabled: !!id && !!documentData }
+  );
+  // console.log(documentVersions)
 
-  const [file, setFile] = useState();
-  const [emptyFile, setEmptyFile] = useState(false);
-  const [newVersion, setNewVersion] = useState(false);
-  const [oldVersion, setOldVersion] = useState(true);
-  const [comment, setComment] = useState();
-
-  const handleFileChange = (e) => {
-    if (e.target.files) {
-      setFile(e.target.files[0]);
-      setEmptyFile(false);
-      setOldVersion(false);
-    }
-  };
+  const [comment, setComment] = useState("");
+  const [version, setVersion] = useState(documentData?.data.version);
 
   const handleDeleteComment = async (commentId) => {
     await api.comment.delete(commentId);
     refetch();
   };
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm(documentData?.data);
-
-  useEffect(() => {
-    if (documentData?.data)
-      reset({
-        ...documentData.data,
-        roles: documentData.data.document_roles.map((i) => i.role.id),
-      });
-    else
-      reset({
-        title: "",
-        description: "",
-        roles: [],
-        categoryId: "",
-      });
-  }, [id]);
-
-  const mutation = useMutation(
-    newVersion ? api.document.create : api.document.update,
-    {
-      onSuccess: () => {
-        reset({
-          title: "",
-          description: "",
-          roles: [],
-          categoryId: "",
-        });
-        navigate("/documents");
-      },
-    }
-  );
-
-  const mutationComment = useMutation(api.comment.create, {
-    onSuccess: () => {
-      setComment("");
-    },
-  });
-
-  const onSubmit = (data) => {
-    const formData = new FormData();
-    formData.append("title", data.title);
-    formData.append("description", data.description);
-    formData.append("roles", JSON.stringify(data.roles));
-    formData.append("categoryId", data.categoryId);
-    if (!newVersion) formData.append("id", id);
-    if (newVersion) formData.append("documentKey", id);
-    if (file) {
-      formData.append("file", file);
-    } else if (!file) {
-      formData.append("fileName", data.file);
-    }
-    mutation.mutate(formData);
+  const handleCreateComment = async (comment) => {
+    await api.comment.create(comment);
+    setComment("")
+    refetch();
   };
+
+  const handleChangeVersion = (event) => {
+    setVersion(event.target.value);
+  }
 
   return (
     <Stack gap={2}>
@@ -123,23 +68,13 @@ export default function DocumentPage() {
           alignItems="center"
           sx={{ backgroundColor: "#f5f5f5", p: 2 }}
         >
-          <Typography variant="h5">مستند</Typography>
-          <div>
-            <Button
-              variant="contained"
-              sx={{ width: 120, padding: 1, margin: 2 }}
-              onClick={handleSubmit(onSubmit)}
-            >
-              ثبت
-            </Button>
-            <Button
-              variant="outlined"
-              sx={{ width: 120, padding: 1, margin: 2 }}
-              onClick={() => navigate("/documents")}
-            >
-              لغو
-            </Button>
-          </div>
+          <Button
+            variant="outlined"
+            sx={{ width: 120, padding: 1, margin: 2 }}
+            onClick={() => navigate("/documents")}
+          >
+            بازگشت
+          </Button>
         </Stack>
         <Box sx={{ p: 3 }}>
           <Typography sx={{ padding: 2 }}>
@@ -154,7 +89,28 @@ export default function DocumentPage() {
             دسته‌بندی : {documentData?.data.category.name}
           </Typography>
           <Divider light />
-          <Typography sx={{ padding: 2 }}>نسخه :</Typography>
+          <div>
+            <Typography sx={{ padding: 2 }}>
+              نسخه :
+              {
+                (documentVersions?.data.length <= 1)
+                  ? (" " + documentData?.data.version)
+                  : (<FormControl sx={{ m: 1, minWidth: 120}} size="small">
+                    <InputLabel id="demo-simple-select-label"></InputLabel>
+                    <Select
+                      labelId="demo-simple-select-label"
+                      id="demo-simple-select"
+                      value={version}
+                      onChange={handleChangeVersion}
+                    >
+                      {documentVersions?.data.map((doc) => (
+                        <MenuItem key={doc.id} value={doc.version}>{doc.version}</MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>)
+              }
+            </Typography>
+          </div>
           <Divider light />
           <Typography sx={{ padding: 2 }}>
             فایل پیوست :{" "}
@@ -182,7 +138,7 @@ export default function DocumentPage() {
               variant="contained"
               sx={{ width: 120, padding: 1, margin: 2, marginLeft: 1 }}
               onClick={() => {
-                mutationComment.mutate({
+                handleCreateComment({
                   message: comment,
                   userId: tokenManager.userIdToken(),
                   documentId: id,
@@ -205,7 +161,7 @@ export default function DocumentPage() {
                     primary={
                       <>
                         {tokenManager.isAdmin ||
-                        tokenManager.userIdToken() === item.userId ? (
+                          tokenManager.userIdToken() === item.userId ? (
                           <DeleteConfirm
                             onDelete={() => {
                               handleDeleteComment(item.id);
