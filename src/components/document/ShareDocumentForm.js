@@ -8,51 +8,59 @@ import {
   TextField,
   Typography
 } from "@mui/material";
+import { api } from "api";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
+import { useQuery } from "react-query";
+import { useNavigate } from "react-router-dom";
 
 export const ShareDocumentForm = ({ onClose, documentId, refetch }) => {
+  const navigate = useNavigate();
+  const [expireTime, setExpireTime] = useState("")
 
-  const {
-    register,
-    handleSubmit,
-    control,
-    formState: { errors },
-    reset,
-  } = useForm(document);
+  const { data: documentData } = useQuery(
+    ["GET_DOCUMENT_ITEM", documentId],
+    () => api.document.getItem(documentId),
+    { enabled: !!documentId }
+  );
+
+  const handleShare = async () => {
+    const result = await api.document.shareDoc(documentId, { expireTime: `${expireTime}h`, filename: documentData?.data.file})
+    const token = (result.data.token)
+    navigate("/shareDocument/" + token);
+    refetch();
+  };
 
   return (
     <Dialog open={true} onClose={onClose}>
-      <form>
-        <DialogTitle>اشتراک گذاری</DialogTitle>
-        <DialogContent>
-          <Stack
-            direction="row"
-            spacing={2}
-            alignItems="baseline"
-          >
-            <TextField
-              margin="dense"
-              label="مدت زمان اعتبار"
-              fullWidth
-              defaultValue={1}
-              helperText={errors.description ? "این فیلد الزامی است" : undefined}
-              error={Boolean(errors.description)}
-            />
-            <Typography>ساعت</Typography>
-          </Stack>
-        </DialogContent>
-        <DialogActions>
-          <Button
-            onClick={() => {
-              reset();
-              onClose()
-            }}
-          >
-            لغو
-          </Button>
-          <Button onClick={() => { onClose() }}>ایجاد لینک</Button>
-        </DialogActions>
-      </form>
+      <DialogTitle>اشتراک گذاری</DialogTitle>
+      <DialogContent>
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="baseline"
+        >
+          <TextField
+            margin="dense"
+            label="مدت زمان اعتبار"
+            fullWidth
+            helperText={(expireTime == "") ? "این فیلد الزامی است" : undefined}
+            error={(expireTime == "") ? true : false}
+            onChange={(e) => setExpireTime(e.target.value)}
+          />
+          <Typography>ساعت</Typography>
+        </Stack>
+      </DialogContent>
+      <DialogActions>
+        <Button
+          onClick={() =>
+            handleShare()
+          }
+        >
+          لغو
+        </Button>
+        <Button onClick={() => handleShare()}>ایجاد لینک</Button>
+      </DialogActions>
     </Dialog>
   );
 };

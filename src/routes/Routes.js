@@ -13,6 +13,7 @@ import LoginPage from "pages/Login.page";
 import RolesPage from "pages/Roles.page";
 import UsersPage from "pages/Users.page";
 import DocumentPage from "pages/Document.page";
+import ShareDocumentPage from "pages/ShareDocument.page"
 import { tokenManager } from "utils";
 
 const ProtectedRoute = () => {
@@ -39,6 +40,7 @@ export const Routes = () => {
             <Route path="/documents/:id" element={<DocumentPage />} />
             <Route path="/categories" element={<CategoriesPage />} />
           </Route>
+          <Route path="/shareDocument/:token" element={<ShareDocumentPage />} />
         </Route>
       </RRDR>
     </BrowserRouter>

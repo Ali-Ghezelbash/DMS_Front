@@ -31,11 +31,13 @@ export default function DocumentPage() {
   const { data: comments, refetch } = useQuery("comment", () =>
     api.comment.list(id)
   );
+
   const { data: documentData } = useQuery(
     ["GET_DOCUMENT_ITEM", id],
     () => api.document.getItem(id),
     { enabled: !!id }
   );
+  
   const { data: documentVersions } = useQuery(
     ["GET_DOCUMENTVERSION_ITEM", documentData?.data.documentKey],
     () => api.document.getversions(documentData?.data.documentKey),

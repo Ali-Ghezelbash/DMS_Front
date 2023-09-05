@@ -25,10 +25,18 @@ const isAdmin = () => {
   return !!decoded.isAdmin;
 };
 
+const getDocumentFilename = (token) => {
+  var decoded = jwt_decode(token);
+  console.log(decoded)
+  console.log(decoded.filename)
+  return decoded.filename;
+};
+
 export const tokenManager = {
   getToken,
   setToken,
   deleteToken,
   isAdmin,
   userIdToken,
+  getDocumentFilename
 };
