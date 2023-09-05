@@ -24,25 +24,25 @@ import { tokenManager } from "utils";
 
 export default function DocumentPage() {
   const navigate = useNavigate();
-  let { id } = useParams();
+  let { id: defaultId } = useParams();
+
+  const [id, setId] = useState(defaultId);
 
   const { data: comments, refetch } = useQuery("comment", () =>
     api.comment.list(id)
   );
   const { data: documentData } = useQuery(
-    "GET_DOCUMENT_ITEM",
+    ["GET_DOCUMENT_ITEM", id],
     () => api.document.getItem(id),
     { enabled: !!id }
   );
   const { data: documentVersions } = useQuery(
-    "GET_DOCUMENTVERSION_ITEM",
+    ["GET_DOCUMENTVERSION_ITEM", documentData?.data.documentKey],
     () => api.document.getversions(documentData?.data.documentKey),
     { enabled: !!id && !!documentData }
   );
-  // console.log(documentVersions)
 
   const [comment, setComment] = useState("");
-  const [version, setVersion] = useState(documentData?.data.version);
 
   const handleDeleteComment = async (commentId) => {
     await api.comment.delete(commentId);
@@ -51,13 +51,13 @@ export default function DocumentPage() {
 
   const handleCreateComment = async (comment) => {
     await api.comment.create(comment);
-    setComment("")
+    setComment("");
     refetch();
   };
 
-  const handleChangeVersion = (event) => {
-    setVersion(event.target.value);
-  }
+  const handleChangeVersion = (e) => {
+    setId(e.target.value);
+  };
 
   return (
     <Stack gap={2}>
@@ -89,28 +89,30 @@ export default function DocumentPage() {
             دسته‌بندی : {documentData?.data.category.name}
           </Typography>
           <Divider light />
-          <div>
-            <Typography sx={{ padding: 2 }}>
-              نسخه :
-              {
-                (documentVersions?.data.length <= 1)
-                  ? (" " + documentData?.data.version)
-                  : (<FormControl sx={{ m: 1, minWidth: 120}} size="small">
-                    <InputLabel id="demo-simple-select-label"></InputLabel>
-                    <Select
-                      labelId="demo-simple-select-label"
-                      id="demo-simple-select"
-                      value={version}
-                      onChange={handleChangeVersion}
-                    >
-                      {documentVersions?.data.map((doc) => (
-                        <MenuItem key={doc.id} value={doc.version}>{doc.version}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>)
-              }
-            </Typography>
-          </div>
+          <Box sx={{ display: "flex", alignItems: "center" }}>
+            <Typography sx={{ padding: 2 }}>نسخه :</Typography>
+            {documentVersions?.data.length <= 1 ? (
+              <Typography sx={{ padding: 2 }}>
+                {documentData?.data.version}
+              </Typography>
+            ) : (
+              <FormControl sx={{ m: 1, minWidth: 120 }} size="small">
+                <InputLabel id="demo-simple-select-label"></InputLabel>
+                <Select
+                  labelId="demo-simple-select-label"
+                  id="demo-simple-select"
+                  value={id}
+                  onChange={handleChangeVersion}
+                >
+                  {documentVersions?.data.map((doc) => (
+                    <MenuItem key={doc.id} value={doc.id}>
+                      {doc.version}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+            )}
+          </Box>
           <Divider light />
           <Typography sx={{ padding: 2 }}>
             فایل پیوست :{" "}
@@ -161,7 +163,7 @@ export default function DocumentPage() {
                     primary={
                       <>
                         {tokenManager.isAdmin ||
-                          tokenManager.userIdToken() === item.userId ? (
+                        tokenManager.userIdToken() === item.userId ? (
                           <DeleteConfirm
                             onDelete={() => {
                               handleDeleteComment(item.id);
